@@ -264,6 +264,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
 @keyframes cf{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important}}
 </style>
+<link rel="stylesheet" href="arena-5v5.css">
 </head>
 <body>
 <div id="boot" role="status" aria-live="polite">
@@ -294,7 +295,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
       <div id="mapsvg"></div>
       <div class="sign"><img class="mascot" id="mascot" src="assets/mascot-hello.png" role="button" tabindex="0" alt="Bạn tuần lộc dẫn đường, chạm để nghe gợi ý">
         <div class="sc"><div class="bubble" id="bubble"></div><div class="cd"><img src="assets/ic-star.png" width="15" height="15" alt=""><span id="cdT"></span></div><div id="hello"></div><span id="sSk" hidden></span></div></div>
-      <p class="note">Bản chạy thử · 4 trạm · xếp hạng dữ liệu mẫu</p>
+      <p class="note">Bản chạy thử · 5 trạm · xếp hạng dữ liệu mẫu</p>
     </div>
     <nav class="dock" id="dock">
       <button class="db g ol" id="qDaily"><span class="orb red"><svg class="scap" viewBox="0 0 50 18" aria-hidden="true"><path d="M3 13C7 4 17 1 25 1s18 3 22 12c-4 3-9 2-12-1-4 4-10 4-14 0-4 3-8 4-18 1z" fill="#fff"/></svg><img src="assets/ic-gift.png" alt=""><span class="dot" id="dDot">1</span></span>Hộp quà</button>
@@ -388,6 +389,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
 </div>
 <div id="toast" role="status"></div>
 
+<script src="arena-5v5.js"></script>
 <script>
 (function(){
 /* ================= MÀN HÌNH CHỜ: tải trước hình cần cho bản đồ ================= */
@@ -445,7 +447,7 @@ const STATIONS=[
  {id:'snowman',name:'Đắp người tuyết',x:268,y:456,ly:54,open:1},
  {id:'talk',name:'Nói với Ông già Noel',x:98,y:390,ly:54},
  {id:'letter',name:'Thư gửi Ông già Noel',x:262,y:318,ly:50},
- {id:'arena',name:'Đấu trường Bông tuyết',x:166,y:252,ly:46}
+ {id:'arena',name:'Đấu trường Bông tuyết',x:166,y:252,ly:46,open:1}
 ];
 
 /* ================= LƯU TRẠNG THÁI ================= */
@@ -629,7 +631,7 @@ function drawMap(){
     lampSvg+=`<g transform="translate(${x} ${y})"><ellipse cy="2" rx="8" ry="2.8" fill="#7F8FC4" opacity=".48"/><path d="M0 0V-34" stroke="#3B1F2B" stroke-width="4.2"/><path d="M0 0V-34" stroke="#5B4AA0" stroke-width="2.2"/><circle cy="-40" r="14" fill="#FFE680" opacity=".22"/><rect x="-5.5" y="-45" width="11" height="11" rx="2.8" fill="#FFE680" ${OL}/><path d="M-7.5 -45h15l-7.5 -6.5z" fill="#E73236" ${OL}/></g>`;
   });
   const st=STATIONS.map((s,i)=>`<g class="st ${s.open?'open':'lock'}" data-i="${i}" role="button" tabindex="0" aria-label="${s.name}${s.open?'':' (sắp mở)'}" transform="translate(${s.x} ${s.y})">
-    <g class="bld">${s.id==='wrap'?smoke(27,-74):''}<image class="bimg" href="assets/st-${s.id}.png" xlink:href="assets/st-${s.id}.png" x="-65" y="-86" width="130" height="130"/>${s.open?'':LOCKB}</g>
+    <g class="bld">${s.id==='wrap'?smoke(27,-74):''}<image class="bimg" href="assets/st-${s.id}.png" xlink:href="assets/st-${s.id}.png" x="-65" y="-86" width="130" height="130"/>${s.id==='arena'?'<g transform="translate(0 -92)"><rect x="-30" y="-12" width="60" height="20" rx="10" fill="#FFD525" stroke="#3B1F2B" stroke-width="2"/><text y="2" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="11" fill="#3B1F2B">5 vs 5</text></g>':''}${s.open?'':LOCKB}</g>
     <g class="lbl" transform="translate(0 ${s.ly})"><rect class="lbld" rx="13" height="26" y="-17" fill="#3B1F2B" opacity=".45" transform="translate(0 3)"/><rect class="lblr" rx="13" height="26" y="-18" fill="${s.open?'url(#gRed)':'url(#gLock)'}" stroke="#fff" stroke-width="2.5"/><text y="0" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="13" fill="#fff" style="paint-order:stroke;stroke:${s.open?'#6E0A10':'#2A2550'};stroke-width:3px">${s.name}</text></g>
   </g>`).join('');
   $('#mapsvg').innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 360 876" width="360" height="876" aria-label="Bản đồ Làng Giáng Sinh">
@@ -683,7 +685,7 @@ function countdown(){
 
 /* ================= MỞ HỘP QUÀ → VÀO TRẠM ================= */
 let cur=null,cleanup=null;
-function access(s){if(!S.profile)return S.trial[s.id]?'reg':'trial';ensureDay();return S.day.tk>0?'scored':'practice'}
+function access(s){if(s.id==='arena'&&!S.profile)return 'practice';if(!S.profile)return S.trial[s.id]?'reg':'trial';ensureDay();return S.day.tk>0?'scored':'practice'}
 function giftFx(label,cb){
   jingle();
   const ov=$('#gift'),b=ov.querySelector('.burst');
@@ -703,18 +705,18 @@ function openStation(i){
 async function enter(s,m){
   m=m||access(s);if(m==='reg'){goHome();openReg();return}
   ROUND=null;
-  if(SRV&&m==='scored'){
+  if(SRV&&m==='scored'&&s.id!=='arena'){
     try{const r=await api('round/start',{station:s.id});applyState(r.state);if(r.mode==='scored')ROUND=r.round;else m='practice'}
     catch(e){toast(e.message+' · lượt này chơi luyện tập');m='practice'}
   }
   MODE=m;RC=0;
-  if(m==='scored'&&!SRV)S.day.tk--;if(m==='trial')S.trial[s.id]=true;save();refresh();
+  if(m==='scored'&&!SRV&&s.id!=='arena')S.day.tk--;if(m==='trial')S.trial[s.id]=true;save();refresh();
   const md=$('#mode');md.className='mode'+(m==='scored'?'':' pr');
-  md.textContent=m==='scored'?`Lượt tính điểm · còn ${S.day.tk} vé hôm nay`:m==='practice'?'Luyện tập · hết vé hôm nay, không tính điểm':'Chơi thử · đăng ký để lưu điểm và kẹo';
+  md.textContent=m==='scored'?(s.id==='arena'?`Mỗi trận dùng 1 vé · còn ${S.day.tk} vé hôm nay`:`Lượt tính điểm · còn ${S.day.tk} vé hôm nay`):m==='practice'?'Luyện tập · hết vé hôm nay, không tính điểm':'Chơi thử · đăng ký để lưu điểm và kẹo';
   cur=s;$('#home').style.display='none';$('#play').style.display='flex';$('#play').className='th-'+s.id;garland(s.id);
   $('#ptitle').textContent=s.name;window.scrollTo(0,0);
   if(cleanup){cleanup();cleanup=null}
-  ({wrap:Wrap,tree:Tree,sled:Sled,snowman:Snowman})[s.id]();
+  ({wrap:Wrap,tree:Tree,sled:Sled,snowman:Snowman,arena:Arena})[s.id]();
 }
 function goHome(){if(cleanup){cleanup();cleanup=null}tipI=0;stopSpeak();$('#play').style.display='none';$('#home').style.display='flex';$('#result').classList.remove('show');refresh();fitStationLabels()}
 function steps(n,at){$('#steps').innerHTML=Array.from({length:n},(_,i)=>`<i class="${i<at?'ok':i===at?'now':''}"></i>`).join('')}
@@ -1067,6 +1069,36 @@ function Snowman(){
   show();
 }
 
+/* ================= TRẠM 7: ĐẤU TRƯỜNG BÔNG TUYẾT 5VS5 ================= */
+function Arena(){
+  if(!window.PECArena){$('#stage').innerHTML='<p class="hint">Chưa tải được Đấu trường, bé thử lại sau nhé</p>';return}
+  window.PECArena.start({
+    S,save,refresh,gain,goHome,ding,buzz,jingle,tone,speak,stopSpeak,unlockAudio,confetti,confettiAt,toast,openReg,WRAP_WORDS,TOPICS,
+    // Kết thúc trận: lượt tính điểm thì gửi máy chủ chấm như các trạm khác
+    async awardStationPoints(pts){
+      pts=Math.max(0,Math.min(100,Math.round(pts)));
+      S.best.arena=Math.max(S.best.arena||0,pts);
+      if(MODE==='scored'&&SRV){
+        if(ROUND){try{const r=await api('round/finish',{round:ROUND,pts,candy:RC});applyState(r.state);if(r.bonus)toast(r.bonus)}catch(e){toast('Chưa lưu được điểm: '+e.message)}}
+        ROUND=null;
+      }else if(MODE==='scored'){const b=addPts(pts);if(b)toast(b)}
+      save();refresh();
+    },
+    async beginRound(){
+      RC=0;ROUND=null;
+      if(!S.profile){MODE='practice';return}
+      ensureDay();MODE=S.day.tk>0?'scored':'practice';
+      if(MODE==='scored'){
+        if(SRV){try{const r=await api('round/start',{station:'arena'});applyState(r.state);if(r.mode==='scored')ROUND=r.round;else MODE='practice'}catch(e){toast(e.message+' · trận này là trận luyện tập');MODE='practice'}}
+        else{S.day.tk--;save()}
+      }
+      refresh();const md=$('#mode');md.className='mode'+(MODE==='scored'?'':' pr');
+      md.textContent=MODE==='scored'?`Trận tính điểm · còn ${S.day.tk} vé hôm nay`:'Luyện tập · hết vé hôm nay, không tính điểm';
+    },
+    setCleanup(fn){cleanup=fn}
+  },null);
+}
+
 /* ================= ĐĂNG KÝ ================= */
 function openReg(msg){
   $('#regSub').textContent=msg||'Để lưu điểm, nhận kẹo gậy, lên bảng xếp hạng và đổi quà tại cơ sở PEC';
@@ -1177,7 +1209,7 @@ $('.mute').onclick=()=>{unlockAudio();S.mute=!S.mute;if(S.mute)stopSpeak();save(
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!b.onclick){unlockAudio();speak(b.dataset.say)}});
 ensureDay();drawMap();countdown();refresh();
 fetch('/api/ping',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.ok)return;
-  SRV=true;document.body.classList.add('srv');$('.note').textContent='4 trạm mở trước · các trạm khác mở dần từ 14/12';
+  SRV=true;document.body.classList.add('srv');$('.note').textContent='5 trạm mở trước · các trạm khác mở dần từ 14/12';
   if(S.profile&&!S.profile.token){S.profile=null;S.codes=[];S.candy=0;S.days={};S.day=null;S.zalo=false;ensureDay();save()}
   refresh();sync()}).catch(()=>{});
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync()});

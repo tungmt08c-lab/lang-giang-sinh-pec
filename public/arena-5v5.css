@@ -1,0 +1,965 @@
+/* ==========================================================================
+   TRẠM 7: ĐẤU TRƯỜNG BÔNG TUYẾT 5VS5 — PHIÊN BẢN ĐỐI KHÁNG CẬN CẢNH (ZOOM BRAWL)
+   - Zoom cận cảnh nhân vật khổng lồ (136px-152px) đối mặt trực diện trên đài băng
+   - Camera Zoom-in, Anime Speed Lines, Hit-Stop Flash, Rung lắc màn hình (Screen Shake)
+   - Hiệu ứng Nạp Lực -> Lao Vọt Áp Sát -> Tung Cú Đấm Găng Tuyết Khổng Lồ -> Đấm Văng Xoay Vòng!
+   ========================================================================== */
+
+#play.th-arena::before {
+  background:
+    radial-gradient(ellipse at 50% 10%, rgba(92, 224, 184, 0.28), transparent 56%),
+    radial-gradient(ellipse at 85% 22%, rgba(255, 143, 208, 0.22), transparent 50%),
+    linear-gradient(180deg, #100930 0%, #1D1559 42%, #263682 78%, #16103E 100%);
+}
+
+.app.arena-wide {
+  max-width: 1280px !important;
+  width: 100%;
+}
+.app.arena-wide #play .bar {
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+}
+.app.arena-wide #stage {
+  padding: 4px 18px 18px;
+}
+
+.ar-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #fff;
+}
+
+/* ---------- SẢNH CHỌN 12 CON GIÁP & GHÉP ĐỘI ---------- */
+.ar-card {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(64, 45, 138, 0.92), rgba(31, 20, 77, 0.95));
+  border: 2.5px solid rgba(255, 255, 255, 0.82);
+  border-radius: 22px;
+  padding: 12px;
+  box-shadow: 0 6px 0 rgba(12, 6, 36, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.ar-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ar-sec-head h4 {
+  margin: 0;
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFE680;
+  text-shadow: 0 2px 0 #2B1440;
+}
+.ar-sec-head span {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #D8CEFF;
+  background: rgba(16, 10, 44, 0.55);
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+.ar-setup-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ar-mini-fld {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #DED5FF;
+}
+.ar-mini-fld select,
+.ar-mini-fld input {
+  height: 38px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  background: #1A114A;
+  color: #fff;
+  font: 700 13px 'Be Vietnam Pro', system-ui, sans-serif;
+  padding: 0 8px;
+}
+.ar-hero-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(20, 12, 54, 0.72), rgba(55, 36, 118, 0.65));
+  border: 2px solid rgba(255, 230, 128, 0.55);
+  margin-bottom: 9px;
+}
+.ar-hero-preview .av-big {
+  width: 66px;
+  height: 66px;
+  object-fit: contain;
+  flex: none;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.45));
+  animation: bob 2.2s ease-in-out infinite;
+}
+.ar-hero-preview .br-ico {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex: none;
+}
+.ar-hero-info { flex: 1; }
+.ar-hero-info b {
+  display: block;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 18px;
+  color: #fff;
+  line-height: 1.1;
+}
+.ar-hero-info small {
+  display: block;
+  font-size: 12px;
+  color: #FFE680;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.ar-zodiac-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+.ar-zbtn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 3px 5px;
+  border-radius: 15px;
+  background: radial-gradient(circle at 50% 30%, #4E399C, #241754);
+  border: 2px solid rgba(255, 255, 255, 0.38);
+  box-shadow: 0 3px 0 #150C35;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+.ar-zbtn img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+}
+.ar-zbtn .zn {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1.05;
+  color: #fff;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+.ar-zbtn .zy {
+  font-size: 9.5px;
+  color: #C9BEEF;
+  font-weight: 700;
+}
+.ar-zbtn.on {
+  background: radial-gradient(circle at 50% 28%, #7B5CE6, #321E78);
+  border-color: #FFD525;
+  box-shadow: 0 0 0 3px rgba(255, 213, 37, 0.35), 0 4px 0 #150C35;
+  transform: translateY(-2px);
+}
+.ar-zbtn.on::after {
+  content: '✓';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #33B865;
+  border: 2px solid #fff;
+  font: 800 11px/15px 'Baloo 2', sans-serif;
+  color: #fff;
+  text-align: center;
+}
+
+.ar-cta-main {
+  width: 100%;
+  min-height: 54px;
+  border-radius: 20px;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: 21px;
+  color: #fff;
+  background: linear-gradient(180deg, #FF6E74 0%, #E73236 55%, #B3141D 100%);
+  border: 3px solid #fff;
+  box-shadow: 0 6px 0 #6E0A10, 0 10px 20px rgba(0, 0, 0, 0.38);
+  text-shadow: 0 2px 0 #6E0A10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ar-golive-box {
+  background: linear-gradient(180deg, rgba(25, 42, 96, 0.9), rgba(17, 22, 62, 0.94));
+  border: 2px solid rgba(92, 224, 184, 0.65);
+  border-radius: 18px;
+  padding: 10px;
+}
+.ar-pin-row { display: flex; gap: 7px; margin-bottom: 8px; }
+.ar-pin-in {
+  width: 104px;
+  height: 40px;
+  border-radius: 12px;
+  border: 2px solid #5CE0B8;
+  background: #10173F;
+  color: #FFE680;
+  font: 800 17px 'Baloo 2', sans-serif;
+  letter-spacing: 2px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.ar-golive-btns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ar-sbtn {
+  min-height: 38px;
+  padding: 5px 6px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(180deg, #4A5FD9, #29388F);
+  border: 1.8px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 3px 0 #151E54;
+  text-align: center;
+  line-height: 1.15;
+}
+.ar-sbtn.gold {
+  background: linear-gradient(180deg, #FFC928, #C98200);
+  color: #2B1440;
+  box-shadow: 0 3px 0 #784B00;
+}
+
+/* ---------- GHÉP ĐỘI ---------- */
+.ar-mm { text-align: center; padding: 16px 12px; }
+.ar-vs-banner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin: 10px 0 12px; }
+.ar-team-card { background: rgba(18, 12, 48, 0.72); border: 2.5px solid var(--tc, #fff); border-radius: 18px; padding: 8px 6px; }
+.ar-team-card img.bdg { width: 52px; height: 52px; object-fit: contain; }
+.ar-team-card b { display: block; font-family: 'Baloo 2', sans-serif; font-size: 15px; line-height: 1.1; }
+.ar-team-card small { display: block; font-size: 11px; color: #FFE680; font-weight: 700; }
+.ar-vs-badge {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFF199, #FF9800 60%, #C62828);
+  border: 3px solid #fff; display: grid; place-items: center;
+  font: 800 19px 'Baloo 2', sans-serif; color: #fff; text-shadow: 0 2px 0 #6E0A10;
+  box-shadow: 0 0 18px rgba(255, 213, 37, 0.7); animation: pulse2 0.9s infinite;
+}
+.ar-roster-pair {
+  display: grid; grid-template-columns: 1fr 24px 1fr; align-items: center; gap: 6px;
+  padding: 5px 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 5px; font-size: 12px; font-weight: 700;
+}
+.ar-roster-pair.me { background: linear-gradient(90deg, rgba(255, 213, 37, 0.25), rgba(92, 224, 184, 0.22)); border: 1.5px solid #FFD525; }
+.ar-rp-side { display: flex; align-items: center; gap: 5px; overflow: hidden; white-space: nowrap; }
+.ar-rp-side.r { flex-direction: row-reverse; text-align: right; }
+.ar-rp-side img { width: 30px; height: 30px; object-fit: contain; flex: none; }
+.ar-rp-side.r img { transform: scaleX(-1); }
+
+/* ---------- TOP HUD TỶ SỐ KÉO CO ---------- */
+.ar-score-hud {
+  background: linear-gradient(180deg, rgba(28, 18, 72, 0.96), rgba(17, 11, 46, 0.96));
+  border: 2.5px solid #fff;
+  border-radius: 18px;
+  padding: 6px 9px 7px;
+  box-shadow: 0 4px 0 rgba(8, 4, 26, 0.6);
+}
+.ar-sh-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; }
+.ar-sh-team { display: flex; align-items: center; gap: 6px; }
+.ar-sh-team.r { flex-direction: row-reverse; text-align: right; }
+.ar-sh-team img { width: 34px; height: 34px; object-fit: contain; flex: none; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45)); }
+.ar-sh-team .tn { font-size: 10.5px; font-weight: 800; color: #E4DCFF; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ar-sh-team .ts { font: 800 22px/1 'Baloo 2', sans-serif; color: #FFE680; font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 #2B1440; }
+.ar-clock-box { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.ar-round-pill {
+  font: 800 11px 'Baloo 2', sans-serif; padding: 1px 8px; border-radius: 999px;
+  background: #35237A; border: 1.5px solid rgba(255, 255, 255, 0.65); color: #fff; white-space: nowrap;
+}
+.ar-round-pill.x2 { background: linear-gradient(90deg, #FF512F, #F09819); border-color: #FFE680; animation: pulse2 0.8s infinite; }
+.ar-timer {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #4A359E, #1D124A);
+  border: 2.5px solid #5CE0B8; display: grid; place-items: center;
+  font: 800 16px/1 'Baloo 2', sans-serif; color: #fff; font-variant-numeric: tabular-nums;
+}
+.ar-timer.urg { border-color: #FF4D5A; background: radial-gradient(circle at 35% 30%, #D62434, #6E0A10); animation: pulse2 0.45s infinite; }
+.ar-tug { position: relative; height: 9px; border-radius: 999px; background: #223066; border: 1.5px solid #fff; overflow: hidden; margin-top: 5px; }
+.ar-tug-l { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: linear-gradient(90deg, var(--ca, #E73236), #FF9AA0); transition: width 0.55s cubic-bezier(0.25, 1.3, 0.5, 1); }
+.ar-tug-r { position: absolute; right: 0; top: 0; bottom: 0; width: 50%; background: linear-gradient(270deg, var(--cb, #3D9BE9), #9AD6FF); transition: width 0.55s cubic-bezier(0.25, 1.3, 0.5, 1); }
+.ar-tug-spark { position: absolute; top: -2px; bottom: -2px; width: 7px; margin-left: -3.5px; left: 50%; background: #FFE680; border-radius: 4px; box-shadow: 0 0 10px #FFE680; transition: left 0.55s cubic-bezier(0.25, 1.3, 0.5, 1); }
+
+/* ---------- THANH 4 CẶP ĐỒNG ĐỘI MINI TRỰC TIẾP (GIỮ CHẤT 5VS5 GỌN GÀNG) ---------- */
+.ar-mini-squad {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+.ar-ms-cell {
+  position: relative;
+  background: linear-gradient(180deg, rgba(35, 52, 112, 0.88), rgba(20, 28, 70, 0.92));
+  border: 1.5px solid rgba(180, 225, 255, 0.5);
+  border-radius: 12px;
+  padding: 3px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.ar-ms-cell.win-a { border-color: #5FE08F; box-shadow: inset 0 0 10px rgba(95, 224, 143, 0.35); }
+.ar-ms-cell.win-b { border-color: #FF6B70; box-shadow: inset 0 0 10px rgba(255, 107, 112, 0.35); }
+.ar-ms-vs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 2px;
+}
+.ar-ms-vs img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  transition: transform 0.25s;
+}
+.ar-ms-vs img.r { transform: scaleX(-1); }
+.ar-ms-vs .ms-mid {
+  font: 800 10px 'Baloo 2', sans-serif;
+  color: #FFE680;
+}
+.ar-ms-st {
+  font: 800 9.5px/1.1 'Baloo 2', sans-serif;
+  color: #DDF0FF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.ar-ms-cell.win-a img.l { transform: translateX(6px) scale(1.18); }
+.ar-ms-cell.win-a img.r { transform: scaleX(-1) rotate(-35deg) opacity(0.65); }
+.ar-ms-cell.win-b img.r { transform: scaleX(-1) translateX(6px) scale(1.18); }
+.ar-ms-cell.win-b img.l { transform: rotate(-35deg) opacity(0.65); }
+
+/* ==========================================================================
+   VÕ ĐÀI BĂNG CẬN CẢNH NHÂN VẬT KHỔNG LỒ (CLOSE-UP FIGHTING STAGE)
+   ========================================================================== */
+.ar-duel-viewport {
+  position: relative;
+  width: 100%;
+  height: 218px;
+  border-radius: 24px;
+  border: 3px solid #FFFFFF;
+  overflow: hidden;
+  box-shadow: 0 7px 0 #162456, 0 12px 24px rgba(0, 0, 0, 0.48);
+  background: #141E52;
+}
+
+/* Camera bên trong để Zoom-In cận cảnh + Rung lắc (Screen Shake) */
+.ar-duel-cam {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at 50% 22%, rgba(92, 224, 184, 0.42), transparent 56%),
+    radial-gradient(ellipse at 20% 20%, rgba(255, 110, 140, 0.28), transparent 48%),
+    linear-gradient(180deg, #16154C 0%, #273D8C 48%, #8ED8FF 51%, #DCF5FF 68%, #A9E1FF 100%);
+  transform-origin: 50% 58%;
+  transition: transform 0.32s cubic-bezier(0.22, 1.35, 0.45, 1);
+}
+/* Sàn võ đài băng 3D elip phát sáng */
+.ar-duel-cam::before {
+  content: '';
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 10px;
+  height: 78px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 45%, #FFFFFF 0%, #D4F2FF 58%, #79BEEF 95%, rgba(56, 120, 190, 0.6) 100%);
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 0 rgba(42, 95, 168, 0.65), 0 0 25px rgba(155, 230, 255, 0.75);
+}
+
+/* Tia tốc độ Anime (Action Speed Lines) bật sáng khi tung đòn */
+.ar-speed-lines {
+  position: absolute;
+  left: -30%;
+  top: -45%;
+  width: 160%;
+  height: 190%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.22) 0deg 3deg,
+    transparent 3deg 11deg,
+    rgba(255, 220, 90, 0.2) 11deg 13deg,
+    transparent 13deg 20deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 22%, #000 62%);
+  mask: radial-gradient(circle, transparent 22%, #000 62%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.ar-duel-viewport.clash-mode .ar-speed-lines {
+  opacity: 1;
+  animation: spin 3.2s linear infinite;
+}
+.ar-duel-viewport.zoom-l .ar-duel-cam {
+  transform: scale(1.12) translate(0%, -2%);
+}
+.ar-duel-viewport.zoom-r .ar-duel-cam {
+  transform: scale(1.12) translate(0%, -2%);
+}
+.ar-duel-viewport.zoom-c .ar-duel-cam {
+  transform: scale(1.12) translate(0, -2%);
+}
+
+/* Chớp sáng trắng-vàng Hit-Stop đúng khoảnh khắc nắm đấm chạm mặt! */
+.ar-hit-flash {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  background: radial-gradient(circle, #FFFFFF 15%, rgba(255, 225, 80, 0.85) 55%, transparent 85%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 15;
+}
+.ar-hit-flash.bang {
+  animation: arImpactFlash 0.34s ease-out;
+}
+@keyframes arImpactFlash {
+  0% { opacity: 0.96; }
+  35% { opacity: 0.75; }
+  100% { opacity: 0; }
+}
+
+/* Rung lắc toàn võ đài khi dính cú đấm trời giáng */
+@keyframes arHeavyShake {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  15% { transform: translate(-11px, -6px) rotate(-1.6deg); }
+  30% { transform: translate(12px, 5px) rotate(1.6deg); }
+  45% { transform: translate(-9px, 4px) rotate(-1.1deg); }
+  60% { transform: translate(8px, -4px) rotate(0.9deg); }
+  78% { transform: translate(-4px, 2px) rotate(-0.4deg); }
+}
+.ar-duel-viewport.shake {
+  animation: arHeavyShake 0.44s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+/* Huy hiệu VS rực lửa giữa 2 nhân vật */
+.ar-stage-vs {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFF3A8, #FF8C00 58%, #B8141E);
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 18px rgba(255, 195, 0, 0.85);
+  display: grid;
+  place-items: center;
+  font: 800 18px 'Baloo 2', sans-serif;
+  color: #fff;
+  text-shadow: 0 2px 0 #5C070C;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.ar-duel-viewport.clash-mode .ar-stage-vs {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.3);
+}
+
+/* Canvas vẽ Sóng xung kích, Tia lửa điện, Mảnh băng văng & Bụi tuyết */
+.ar-duel-fx {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 11;
+}
+
+/* ---------- 2 CHIẾN BINH KHỔNG LỒ ĐỐI MẶT TRÊN ĐÀI ---------- */
+.ar-gladiator {
+  position: absolute;
+  bottom: 18px;
+  width: 138px;
+  height: 158px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.ar-gladiator.left { left: 18px; }
+.ar-gladiator.right { right: 18px; }
+
+/* Bóng đổ dưới mặt băng */
+.ar-glad-shadow {
+  position: absolute;
+  bottom: 4px;
+  width: 92px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(22, 58, 118, 0.48), transparent 72%);
+  z-index: 1;
+}
+
+/* Khung cơ thể chiến binh để diễn hoạt Đấm / Bị đấm văng */
+.ar-glad-body {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  transform-origin: 50% 85%;
+  animation: arIdleFight 1.35s ease-in-out infinite alternate;
+}
+.ar-gladiator.right .ar-glad-body {
+  animation-delay: -0.65s;
+}
+@keyframes arIdleFight {
+  0% { transform: translateY(0) scale(1, 1); }
+  100% { transform: translateY(-6px) scale(1.03, 0.97); }
+}
+
+.ar-glad-img {
+  width: 128px;
+  height: 128px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 6px rgba(14, 30, 74, 0.45));
+}
+.ar-gladiator.right .ar-glad-img {
+  transform: scaleX(-1);
+}
+
+/* Hào quang Nạp Lực Chiến Đấu khi đã chốt đáp án hoặc đạt chuỗi Combo! */
+.ar-power-flame {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 225, 65, 0.58) 0%, rgba(255, 120, 30, 0.25) 55%, transparent 74%);
+  filter: blur(2px);
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.ar-gladiator.charging .ar-power-flame,
+.ar-gladiator.on-fire .ar-power-flame {
+  opacity: 1;
+  animation: pulse2 0.42s infinite;
+}
+
+/* GĂNG ĐẤM BĂNG LỬA KHỔNG LỒ GẮN TRÊN TAY NHÂN VẬT KHI TUNG ĐÒN! */
+.ar-mega-fist {
+  position: absolute;
+  top: 24%;
+  width: 88px;
+  height: 88px;
+  z-index: 14;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 16px #FFD525) drop-shadow(0 5px 8px rgba(0, 0, 0, 0.5));
+}
+.ar-gladiator.left .ar-mega-fist { right: -42px; }
+.ar-gladiator.right .ar-mega-fist { left: -42px; transform: scaleX(-1); }
+
+/* Đụn tuyết nổ + Sao choáng váng trên đầu kẻ bị đấm văng */
+.ar-ko-stars {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 22px;
+  white-space: nowrap;
+  opacity: 0;
+  z-index: 14;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.55));
+}
+
+/* Bảng tên + Thanh máu/khí thế dưới chân mỗi nhân vật */
+.ar-glad-plate {
+  position: relative;
+  z-index: 8;
+  margin-top: -6px;
+  background: rgba(16, 12, 52, 0.88);
+  border: 2px solid #fff;
+  border-radius: 12px;
+  padding: 2px 9px;
+  text-align: center;
+  min-width: 112px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.38);
+}
+.ar-glad-plate b {
+  display: block;
+  font: 800 12.5px/1.1 'Baloo 2', sans-serif;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 118px;
+}
+.ar-glad-plate small {
+  display: block;
+  font: 800 10.5px/1.15 'Baloo 2', sans-serif;
+  color: #FFE680;
+}
+
+/* Bảng chữ Comic khổng lồ ("🥊 CÚ ĐẤM SẤM SÉT! +148Đ") nổ giữa màn hình */
+.ar-comic-burst {
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  transform: translate(-50%, -50%) scale(0);
+  z-index: 16;
+  padding: 5px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #FFF275 0%, #FF9900 65%, #E63900 100%);
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 5px 0 #6E0A10, 0 0 24px rgba(255, 213, 37, 0.9);
+  font: 800 18px/1.1 'Baloo 2', sans-serif;
+  color: #2B1440;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.ar-comic-burst.pop-in {
+  animation: arComicSlam 2.55s cubic-bezier(0.22, 1.6, 0.4, 1) forwards;
+}
+@keyframes arComicSlam {
+  0% { transform: translate(-50%, -50%) scale(0) rotate(-10deg); opacity: 0; }
+  14% { transform: translate(-50%, -50%) scale(1.16) rotate(3deg); opacity: 1; }
+  24% { transform: translate(-50%, -50%) scale(1) rotate(-2deg); opacity: 1; }
+  84% { transform: translate(-50%, -56%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -72%) scale(0.8) rotate(0deg); opacity: 0; }
+}
+
+/* ==========================================================================
+   CHUỖI HOẠT CẢNH TUNG CÚ ĐẤM ĐỐI KHÁNG (KEYFRAMES VÕ ĐÀI)
+   ========================================================================== */
+
+/* 1. BÊN TRÁI TUNG CÚ ĐẤM SIÊU CẤP ÁP SÁT ĐỐI THỦ! */
+@keyframes arHeroPunchL {
+  0% { transform: translateX(0) rotate(0) scale(1); }
+  /* Thu tay lấy đà nén lò xo */
+  13% { transform: translateX(-22px) translateY(4px) rotate(-14deg) scale(0.92, 1.08); }
+  /* Lao vọt băng qua sân áp sát mặt đối thủ! */
+  24% { transform: translateX(132px) translateY(-8px) rotate(11deg) scale(1.24, 0.94); }
+  /* Hit-stop giữ nguyên cú đấm cắm thẳng vào mục tiêu! */
+  34% { transform: translateX(136px) translateY(-8px) rotate(12deg) scale(1.26); }
+  /* Bật ngược về giữa sân nhảy 2 nhịp giơ tay chiến thắng */
+  52% { transform: translateX(42px) translateY(-28px) rotate(-4deg) scale(1.16); }
+  66% { transform: translateX(42px) translateY(0) rotate(0) scale(1.02, 0.96); }
+  80% { transform: translateX(42px) translateY(-20px) rotate(4deg) scale(1.14); }
+  100% { transform: translateX(0) translateY(0) rotate(0) scale(1); }
+}
+
+/* 2. BÊN PHẢI TUNG CÚ ĐẤM SIÊU CẤP ÁP SÁT NGƯỜI CHƠI! */
+@keyframes arHeroPunchR {
+  0% { transform: translateX(0) rotate(0) scale(1); }
+  13% { transform: translateX(22px) translateY(4px) rotate(14deg) scale(0.92, 1.08); }
+  24% { transform: translateX(-132px) translateY(-8px) rotate(-11deg) scale(1.24, 0.94); }
+  34% { transform: translateX(-136px) translateY(-8px) rotate(-12deg) scale(1.26); }
+  52% { transform: translateX(-42px) translateY(-28px) rotate(4deg) scale(1.16); }
+  66% { transform: translateX(-42px) translateY(0) rotate(0) scale(1.02, 0.96); }
+  80% { transform: translateX(-42px) translateY(-20px) rotate(-4deg) scale(1.14); }
+  100% { transform: translateX(0) translateY(0) rotate(0) scale(1); }
+}
+
+/* Găng đấm khổng lồ phóng to rõ nét suốt pha nạp lực & tung đòn */
+@keyframes arFistThrustL {
+  0%, 5% { opacity: 0; transform: translateX(-24px) scale(0.45) rotate(-22deg); }
+  12% { opacity: 1; transform: translateX(-14px) scale(0.95) rotate(-12deg); }
+  22%, 52% { opacity: 1; transform: translateX(28px) scale(1.42) rotate(8deg); }
+  66%, 100% { opacity: 0; transform: translateX(42px) scale(0.65); }
+}
+@keyframes arFistThrustR {
+  0%, 5% { opacity: 0; transform: scaleX(-1) translateX(-24px) scale(0.45) rotate(-22deg); }
+  12% { opacity: 1; transform: scaleX(-1) translateX(-14px) scale(0.95) rotate(-12deg); }
+  22%, 52% { opacity: 1; transform: scaleX(-1) translateX(28px) scale(1.42) rotate(8deg); }
+  66%, 100% { opacity: 0; transform: scaleX(-1) translateX(42px) scale(0.65); }
+}
+
+/* 3. BỊ ĐẤM VĂNG XOAY VÒNG CẮM VÀO ĐỤN TUYẾT! */
+@keyframes arHeroKO_R {
+  0%, 22% { transform: translate(0, 0) rotate(0) scale(1); }
+  /* Bị trúng đấm méo người (squash) */
+  26% { transform: translate(8px, -4px) rotate(14deg) scale(0.82, 1.18); filter: brightness(2); }
+  /* Văng tung lên không trung xoay vòng! */
+  44% { transform: translate(54px, -42px) rotate(195deg) scale(0.9); }
+  /* Rơi cắm nghiêng vào đụn tuyết góc sân */
+  60%, 84% { transform: translate(36px, 12px) rotate(82deg) scale(0.92); }
+  100% { transform: translate(0, 0) rotate(0) scale(1); }
+}
+@keyframes arHeroKO_L {
+  0%, 22% { transform: translate(0, 0) rotate(0) scale(1); }
+  26% { transform: translate(-8px, -4px) rotate(-14deg) scale(0.82, 1.18); filter: brightness(2); }
+  44% { transform: translate(-54px, -42px) rotate(-195deg) scale(0.9); }
+  60%, 84% { transform: translate(-36px, 12px) rotate(-82deg) scale(0.92); }
+  100% { transform: translate(0, 0) rotate(0) scale(1); }
+}
+
+@keyframes arKoStarsPop {
+  0%, 36% { opacity: 0; transform: translateX(-50%) scale(0.3); }
+  48%, 85% { opacity: 1; transform: translateX(-50%) scale(1.12) rotate(10deg); }
+  66% { opacity: 1; transform: translateX(-50%) scale(1.18) rotate(-10deg); }
+  100% { opacity: 0; transform: translateX(-50%) scale(0.4); }
+}
+
+/* 4. ĐỌ QUYỀN TỐC ĐỘ (CẢ HAI CÙNG LAO RA GIỮA SÂN ĐẤM NHAU -> NGƯỜI NHANH HƠN ĐÁNH BẬT ĐỐI THỦ!) */
+@keyframes arClashWinL {
+  0% { transform: translateX(0); }
+  18%, 32% { transform: translateX(74px) rotate(8deg) scale(1.15); }
+  44% { transform: translateX(112px) translateY(-10px) rotate(12deg) scale(1.24); }
+  68% { transform: translateX(45px) translateY(-22px) scale(1.14); }
+  100% { transform: translateX(0) scale(1); }
+}
+@keyframes arClashLoseR {
+  0% { transform: translateX(0); }
+  18%, 32% { transform: translateX(-74px) rotate(-8deg) scale(1.12); }
+  48%, 80% { transform: translateX(30px) translateY(8px) rotate(36deg) scale(0.92); }
+  100% { transform: translateX(0) rotate(0) scale(1); }
+}
+@keyframes arClashWinR {
+  0% { transform: translateX(0); }
+  18%, 32% { transform: translateX(-74px) rotate(-8deg) scale(1.15); }
+  44% { transform: translateX(-112px) translateY(-10px) rotate(-12deg) scale(1.24); }
+  68% { transform: translateX(-45px) translateY(-22px) scale(1.14); }
+  100% { transform: translateX(0) scale(1); }
+}
+@keyframes arClashLoseL {
+  0% { transform: translateX(0); }
+  18%, 32% { transform: translateX(74px) rotate(8deg) scale(1.12); }
+  48%, 80% { transform: translateX(-30px) translateY(8px) rotate(-36deg) scale(0.92); }
+  100% { transform: translateX(0) rotate(0) scale(1); }
+}
+
+/* Gắn class kích hoạt trên Võ đài Cận cảnh */
+.ar-gladiator.left.do-punch .ar-glad-body { animation: arHeroPunchL 2.65s cubic-bezier(0.22, 1, 0.36, 1); }
+.ar-gladiator.left.do-punch .ar-mega-fist { animation: arFistThrustL 2.65s ease-out; }
+
+.ar-gladiator.right.do-punch .ar-glad-body { animation: arHeroPunchR 2.65s cubic-bezier(0.22, 1, 0.36, 1); }
+.ar-gladiator.right.do-punch .ar-mega-fist { animation: arFistThrustR 2.65s ease-out; }
+
+.ar-gladiator.right.do-ko .ar-glad-body { animation: arHeroKO_R 2.65s cubic-bezier(0.22, 1, 0.36, 1); }
+.ar-gladiator.left.do-ko .ar-glad-body { animation: arHeroKO_L 2.65s cubic-bezier(0.22, 1, 0.36, 1); }
+.ar-gladiator.do-ko .ar-ko-stars { animation: arKoStarsPop 2.65s ease-out; }
+
+.ar-gladiator.left.do-clash-win .ar-glad-body { animation: arClashWinL 2.65s ease-out; }
+.ar-gladiator.left.do-clash-win .ar-mega-fist { animation: arFistThrustL 2.65s ease-out; }
+.ar-gladiator.right.do-clash-lose .ar-glad-body { animation: arClashLoseR 2.65s ease-out; }
+.ar-gladiator.right.do-clash-lose .ar-ko-stars { animation: arKoStarsPop 2.65s ease-out; }
+
+.ar-gladiator.right.do-clash-win .ar-glad-body { animation: arClashWinR 2.65s ease-out; }
+.ar-gladiator.right.do-clash-win .ar-mega-fist { animation: arFistThrustR 2.65s ease-out; }
+.ar-gladiator.left.do-clash-lose .ar-glad-body { animation: arClashLoseL 2.65s ease-out; }
+.ar-gladiator.left.do-clash-lose .ar-ko-stars { animation: arKoStarsPop 2.65s ease-out; }
+
+.ar-gladiator.left.do-slip .ar-glad-body { animation: arSlipL 2.2s ease-out; }
+.ar-gladiator.right.do-slip .ar-glad-body { animation: arSlipR 2.2s ease-out; }
+
+/* ---------- CHẾ ĐỘ XEM 5 LÀN LỚN & SÂN KHẤU LIVESTREAM 16:9 ---------- */
+.ar-rink {
+  position: relative;
+  width: 100%;
+  border-radius: 22px;
+  border: 3px solid #E5F6FF;
+  background: linear-gradient(180deg, #B8E7FF 0%, #DCF4FF 48%, #BCE9FF 100%);
+  box-shadow: 0 6px 0 #213670, inset 0 0 22px rgba(255, 255, 255, 0.75);
+  overflow: hidden;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ar-lane {
+  position: relative;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.55), rgba(210, 240, 255, 0.8) 50%, rgba(255, 255, 255, 0.55));
+  border: 1.5px solid rgba(72, 138, 196, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 5px;
+  min-height: 82px;
+  overflow: hidden;
+}
+.ar-lane::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: var(--mid, 50%);
+  width: 3px; margin-left: -1.5px;
+  background: repeating-linear-gradient(180deg, rgba(231, 50, 54, 0.55) 0 5px, rgba(61, 155, 233, 0.55) 5px 10px);
+  transition: left 0.55s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.ar-lane-tag {
+  position: absolute; left: 50%; top: 2px; transform: translateX(-50%);
+  font: 800 9.5px/1.2 'Baloo 2', sans-serif; padding: 1px 8px; border-radius: 999px;
+  background: rgba(24, 38, 92, 0.82); color: #FFE680; z-index: 4; white-space: nowrap;
+}
+.ar-ftr { position: relative; display: flex; align-items: center; gap: 8px; z-index: 3; width: 45%; }
+.ar-ftr.r { flex-direction: row-reverse; text-align: right; }
+.ar-sprite-box { position: relative; width: 68px; height: 68px; flex: none; display: grid; place-items: center; }
+.ar-sprite { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 3px 3px rgba(16, 36, 78, 0.38)); transform-origin: 50% 88%; }
+.ar-ftr.r .ar-sprite { transform: scaleX(-1); }
+.ar-snow-puff { position: absolute; bottom: -2px; left: 50%; width: 110%; height: 28%; transform: translateX(-50%) scale(0); border-radius: 999px; background: #fff; opacity: 0; }
+.ar-dizzy { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 16px; white-space: nowrap; opacity: 0; }
+.ar-aura { position: absolute; bottom: 0; left: 50%; width: 92%; height: 24%; transform: translateX(-50%); border-radius: 50%; border: 2.5px solid #FFD525; background: rgba(255, 213, 37, 0.45); animation: pulse2 0.75s infinite; }
+.ar-fmeta { min-width: 0; color: #1A2B5F; }
+.ar-fmeta b { display: block; font: 800 13.5px/1.1 'Baloo 2', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ar-fmeta small { display: inline-block; font-size: 10.5px; font-weight: 800; padding: 1px 6px; border-radius: 999px; background: rgba(26, 43, 95, 0.14); color: #244082; }
+.ar-fmeta small.pts-pop { background: #E73236; color: #FFE680; }
+
+@keyframes arDashWinL {
+  0% { transform: translateX(0); }
+  22% { transform: translateX(64px) rotate(10deg) scale(1.18); }
+  48% { transform: translateX(20px) translateY(-16px) scale(1.12); }
+  100% { transform: translateX(0) scale(1); }
+}
+@keyframes arDashWinR {
+  0% { transform: scaleX(-1) translateX(0); }
+  22% { transform: scaleX(-1) translateX(64px) rotate(10deg) scale(1.18); }
+  48% { transform: scaleX(-1) translateX(20px) translateY(-16px) scale(1.12); }
+  100% { transform: scaleX(-1) translateX(0) scale(1); }
+}
+@keyframes arKnockFallL {
+  0%, 18% { transform: translateX(0); }
+  38%, 82% { transform: translateX(-34px) translateY(8px) rotate(-48deg) scale(0.9); }
+  100% { transform: translateX(0) rotate(0); }
+}
+@keyframes arKnockFallR {
+  0%, 18% { transform: scaleX(-1) translateX(0); }
+  38%, 82% { transform: scaleX(-1) translateX(-34px) translateY(8px) rotate(-48deg) scale(0.9); }
+  100% { transform: scaleX(-1) translateX(0) rotate(0); }
+}
+@keyframes arSlipL {
+  0% { transform: rotate(0); }
+  35%, 80% { transform: rotate(-28deg) translateY(8px); }
+  100% { transform: rotate(0); }
+}
+@keyframes arSlipR {
+  0% { transform: scaleX(-1) rotate(0); }
+  35%, 80% { transform: scaleX(-1) rotate(-28deg) translateY(8px); }
+  100% { transform: scaleX(-1) rotate(0); }
+}
+.ar-ftr.l.act-win .ar-sprite { animation: arDashWinL 2.5s ease-out; }
+.ar-ftr.r.act-win .ar-sprite { animation: arDashWinR 2.5s ease-out; }
+.ar-ftr.l.act-fall .ar-sprite { animation: arKnockFallL 2.5s ease-out; }
+.ar-ftr.r.act-fall .ar-sprite { animation: arKnockFallR 2.5s ease-out; }
+.ar-ftr.act-fall .ar-dizzy { animation: arKoStarsPop 2.5s ease-out; }
+
+/* ---------- KHUNG CÂU HỎI, 4 ĐÁP ÁN & SƯƠNG BĂNG ---------- */
+.ar-qbox {
+  position: relative;
+  background: linear-gradient(180deg, #3C2888, #221557);
+  border: 2.5px solid #fff;
+  border-radius: 18px;
+  padding: 8px 10px 9px;
+  box-shadow: 0 5px 0 #120934;
+  overflow: hidden;
+}
+.ar-qhead { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.ar-qtext { flex: 1; font-weight: 800; font-size: 14.5px; line-height: 1.25; color: #FFF8E6; }
+.ar-qsay {
+  width: 36px; height: 36px; border-radius: 50%; flex: none;
+  background: radial-gradient(circle at 35% 30%, #FFF1A6, #FFC81F 60%, #C98200);
+  border: 2.5px solid #fff; display: grid; place-items: center; box-shadow: 0 3px 0 #7A4E00;
+}
+.ar-opts { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.ar-opt {
+  min-height: 44px; padding: 5px 8px; border-radius: 13px;
+  background: linear-gradient(180deg, #5A43B5, #342378);
+  border: 2.5px solid rgba(255, 255, 255, 0.78);
+  box-shadow: 0 4px 0 #190E42; color: #fff;
+  font: 800 14px/1.15 'Baloo 2', 'Be Vietnam Pro', sans-serif;
+  display: flex; align-items: center; gap: 6px; text-align: left;
+}
+.ar-opt .ok-let {
+  width: 23px; height: 23px; border-radius: 7px;
+  background: rgba(255, 255, 255, 0.18); display: grid; place-items: center; font-size: 12.5px; flex: none;
+}
+.ar-opt.picked { border-color: #FFD525; background: linear-gradient(180deg, #7C5CE6, #492FA3); box-shadow: 0 0 0 3px rgba(255, 213, 37, 0.38), 0 4px 0 #190E42; }
+.ar-opt.correct { background: linear-gradient(180deg, #5FE08F, #1E8F48) !important; border-color: #fff !important; }
+.ar-opt.wrong { background: linear-gradient(180deg, #FF6B70, #B81922) !important; border-color: #fff !important; }
+
+.ar-frost-wrap { position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; z-index: 12; border-radius: 18px; overflow: hidden; touch-action: none; }
+.ar-frost-cv { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+.ar-frost-tip {
+  position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
+  background: rgba(18, 32, 76, 0.88); color: #FFE680; border: 2px solid #fff;
+  border-radius: 999px; padding: 3px 12px; font: 800 12px 'Baloo 2', sans-serif;
+  pointer-events: none; white-space: nowrap; animation: pulse2 0.7s infinite;
+}
+
+.ar-skills { display: flex; gap: 7px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.ar-skbtn {
+  flex: 1; min-width: 92px; min-height: 42px; padding: 3px 7px; border-radius: 14px;
+  background: linear-gradient(180deg, #4A3899, #261A60);
+  border: 2px solid rgba(255, 255, 255, 0.72); box-shadow: 0 3px 0 #140B38;
+  display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; color: #fff; text-align: left;
+}
+.ar-skbtn img { width: 28px; height: 28px; object-fit: contain; flex: none; }
+.ar-skbtn.armed { border-color: #FFD525; background: linear-gradient(180deg, #8A6200, #4F3600); box-shadow: 0 0 12px rgba(255, 213, 37, 0.65); }
+.ar-skbtn:disabled { opacity: 0.42; filter: grayscale(0.85); cursor: default; }
+
+/* ---------- HOẠT CẢNH CHIẾN THẮNG ĐỒNG ĐỘI 6S ---------- */
+.ar-cutscene {
+  position: relative; width: 100%; min-height: 390px; border-radius: 24px; border: 3px solid #FFE680;
+  background: radial-gradient(circle at 50% 28%, rgba(255, 230, 128, 0.35), transparent 58%), linear-gradient(180deg, #1A1052 0%, #2D1D7A 52%, #9CE0FF 53%, #E5F7FF 100%);
+  overflow: hidden; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 14px 12px; text-align: center;
+}
+.ar-cut-cv { position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.ar-cut-title { position: relative; z-index: 4; font: 800 24px 'Baloo 2', sans-serif; color: #FFE680; text-shadow: 0 3px 0 #2B1440; }
+.ar-cut-stage { position: relative; z-index: 3; width: 100%; height: 230px; display: flex; align-items: center; justify-content: center; }
+.ar-cut-cup { width: 118px; height: 118px; object-fit: contain; filter: drop-shadow(0 6px 14px rgba(255, 213, 37, 0.75)); animation: pop 0.65s cubic-bezier(0.3, 1.7, 0.5, 1); }
+.ar-cut-heroes { display: flex; align-items: flex-end; justify-content: center; gap: 4px; width: 100%; position: relative; z-index: 4; }
+.ar-cut-hero { display: flex; flex-direction: column; align-items: center; animation: arVictoryDance 0.68s ease-in-out infinite alternate; }
+.ar-cut-hero:nth-child(2n) { animation-delay: -0.34s; }
+.ar-cut-hero img { width: 62px; height: 62px; object-fit: contain; filter: drop-shadow(0 5px 5px rgba(12, 24, 64, 0.4)); }
+.ar-cut-hero span { font: 800 10.5px 'Baloo 2', sans-serif; background: rgba(20, 12, 54, 0.85); color: #FFE680; padding: 1px 6px; border-radius: 999px; border: 1.5px solid #fff; }
+@keyframes arVictoryDance {
+  from { transform: translateY(0) rotate(-4deg) scale(1); }
+  to { transform: translateY(-16px) rotate(4deg) scale(1.08); }
+}
+
+.ar-podium-box { position: relative; width: 100%; padding-top: 12px; text-align: center; }
+.ar-podium-img { width: min(310px, 88%); height: auto; display: block; margin: 0 auto; }
+.ar-mvp-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(90deg, #FFB800, #FFE680, #FFB800); color: #3B1F2B;
+  font: 800 15px 'Baloo 2', sans-serif; padding: 5px 16px; border-radius: 999px;
+  border: 2.5px solid #fff; box-shadow: 0 4px 12px rgba(255, 213, 37, 0.5); margin-bottom: 6px;
+}
+
+.ar-stage-grid { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+@media (max-width: 860px) { .ar-stage-grid { grid-template-columns: 1fr; } }
+.ar-campus-race { display: flex; flex-direction: column; gap: 7px; }
+.ar-cr-row { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 7px; font-size: 12px; font-weight: 800; }
+.ar-cr-row img { width: 28px; height: 28px; object-fit: contain; }
+.ar-cr-bar { height: 9px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); overflow: hidden; margin-top: 3px; }
+.ar-cr-bar i { display: block; height: 100%; border-radius: 999px; background: var(--cc, #FFD525); }
+
+.ar-cheer-float { position: fixed; bottom: 70px; z-index: 86; font-size: 26px; pointer-events: none; animation: arCheerUp 1.9s ease-out forwards; }
+@keyframes arCheerUp {
+  0% { transform: translateY(0) scale(0.6); opacity: 1; }
+  100% { transform: translateY(-280px) translateX(var(--cx, 20px)) scale(1.25); opacity: 0; }
+}

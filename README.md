@@ -13,10 +13,12 @@ Game web mùa Noel 2026 của Trung tâm Ngoại ngữ và Du học PEC: trẻ t
 | `public/index.html` | Toàn bộ game: giao diện, 3 trạm cấp Kids, vé, điểm, kẹo, bảng xếp hạng, đổi quà |
 | `public/logo-pec.png` | Logo PEC |
 | `public/assets/` | Hình do người thiết kế vẽ (nền, công trình, linh vật, biểu tượng…), tên file theo tài liệu yêu cầu thiết kế |
+| `public/arena-5v5.js`, `public/arena-5v5.css`, `public/data/arena-5v5-config.json` | Trạm 7 Đấu trường Bông tuyết 5vs5: sảnh chọn con giáp, trận 10 lượt với 9 bạn máy, kỹ năng, hoạt cảnh thắng, giấy chứng nhận. Kho câu hỏi và luật trong file cấu hình |
 | `public/audio/` | 78 file phát âm tiếng Anh, tên file = câu viết thường nối gạch ngang |
 | `public/quay/` | Trang quầy đổi quà cho lễ tân: tra mã, xác nhận đã trao quà |
 | `public/quantri/` | Trang theo dõi: số đăng ký, lượt chơi, đổi quà, lượt bất thường, tải danh sách phụ huynh |
 | `functions/api/` | Máy chủ (Cloudflare Pages Functions + cơ sở dữ liệu D1): đăng ký, vé, điểm, kẹo, xếp hạng, mã đổi quà |
+| `design/mockups-5v5/`, `design/dac-ta-dau-truong-5vs5.md` | Bản vẽ tham chiếu và đặc tả Đấu trường 5vs5 (nội bộ) |
 | `design/` | Tài liệu nội bộ, không đưa lên mạng: ảnh khung bản đồ, ảnh bản hiện tại, tờ trình kế hoạch gửi BGĐ |
 
 ## Phân việc

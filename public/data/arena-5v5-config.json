@@ -1,0 +1,135 @@
+{
+  "version": "1.0.0",
+  "feature": "station-7-arena-5v5-golive",
+  "title": "Đấu Trường Bông Tuyết 5vs5 – Đại Chiến 5 Cơ Sở PEC",
+  "campuses": [
+    { "id": "lachtray",   "name": "Lạch Tray",        "teamTitle": "Chiến Binh Sao Đỏ",   "color": "#E73236", "badge": "assets/badge-branch-lachtray.png" },
+    { "id": "tohieu",     "name": "Tô Hiệu",          "teamTitle": "Vệ Binh Rừng Thông",  "color": "#33B865", "badge": "assets/badge-branch-tohieu.png" },
+    { "id": "imperia",    "name": "Vinhomes Imperia", "teamTitle": "Kỵ Sĩ Cực Quang",     "color": "#F2B600", "badge": "assets/badge-branch-imperia.png" },
+    { "id": "danang",     "name": "Đà Nẵng",          "teamTitle": "Tinh Linh Băng Lam",  "color": "#3D9BE9", "badge": "assets/badge-branch-danang.png" },
+    { "id": "thuynguyen", "name": "Thủy Nguyên",      "teamTitle": "Tuần Lộc Tím Đêm",    "color": "#A146C9", "badge": "assets/badge-branch-thuynguyen.png" }
+  ],
+  "zodiacAvatars": [
+    { "id": "ty",   "order": 1,  "zodiac": "Tý",   "name": "Chuột Kem",      "years": [2020, 2008], "file": "assets/av-01-ty.png",   "accent": "#BCC8E6" },
+    { "id": "suu",  "order": 2,  "zodiac": "Sửu",  "name": "Trâu Vàng",      "years": [2021, 2009], "file": "assets/av-02-suu.png",  "accent": "#FFD525" },
+    { "id": "dan",  "order": 3,  "zodiac": "Dần",  "name": "Hổ Bông",        "years": [2022, 2010], "file": "assets/av-03-dan.png",  "accent": "#FFAE42" },
+    { "id": "mao",  "order": 4,  "zodiac": "Mão",  "name": "Mèo Tuyết",      "years": [2023, 2011], "file": "assets/av-04-mao.png",  "accent": "#FFB0C8" },
+    { "id": "thin", "order": 5,  "zodiac": "Thìn", "name": "Rồng Ngọc",      "years": [2024, 2012], "file": "assets/av-05-thin.png", "accent": "#5CE0B8" },
+    { "id": "ran",  "order": 6,  "zodiac": "Tỵ",   "name": "Rắn Bạc Hà",     "years": [2013],       "file": "assets/av-06-ran.png",  "accent": "#82ED9E" },
+    { "id": "ngo",  "order": 7,  "zodiac": "Ngọ",  "name": "Ngựa Pony",      "years": [2014],       "file": "assets/av-07-ngo.png",  "accent": "#E0985A" },
+    { "id": "mui",  "order": 8,  "zodiac": "Mùi",  "name": "Dê Bông Xù",     "years": [2015],       "file": "assets/av-08-mui.png",  "accent": "#F2C98A" },
+    { "id": "than", "order": 9,  "zodiac": "Thân", "name": "Khỉ Nhí",        "years": [2016],       "file": "assets/av-09-than.png", "accent": "#C9834B" },
+    { "id": "dau",  "order": 10, "zodiac": "Dậu",  "name": "Gà Vàng",        "years": [2017],       "file": "assets/av-10-dau.png",  "accent": "#FFE45E" },
+    { "id": "tuat", "order": 11, "zodiac": "Tuất", "name": "Cún Corgi",      "years": [2018],       "file": "assets/av-11-tuat.png", "accent": "#F2A855" },
+    { "id": "hoi",  "order": 12, "zodiac": "Hợi",  "name": "Heo Hồng",       "years": [2019],       "file": "assets/av-12-hoi.png",  "accent": "#FFB3C9" }
+  ],
+  "matchRules": {
+    "mode": "5v5_parallel_lane_duel",
+    "teamSize": 5,
+    "lanesCount": 5,
+    "matchmaking": {
+      "groupBy": ["level", "campus"],
+      "fallbackWaitSeconds": 8,
+      "fallbackPolicy": "mixed_campus_alliance_or_smart_bot",
+      "goliveMode": "mc_random_draw_by_campus"
+    },
+    "questionPairing": {
+      "sharedClockAcrossAllLanes": true,
+      "uniqueQuestionPerLaneInSameRound": true,
+      "sameQuestionWithinEach1v1Pair": true
+    },
+    "totalRounds": 10,
+    "questionDurationMs": 10000,
+    "clashAnimationDurationMs": 2800,
+    "victoryCutsceneDurationMs": 6000,
+    "winCondition": "highest_team_total_score_after_10_rounds",
+    "tieBreaker": "lowest_team_total_correct_response_ms",
+    "scoring": {
+      "rounds1To8Multiplier": 1,
+      "rounds9To10Multiplier": 2,
+      "baseCorrectPoints": 100,
+      "maxSpeedBonusPoints": 50,
+      "fullSpeedWindowMs": 1500,
+      "slowerCorrectConsolationPoints": 70,
+      "tieWindowMs": 150,
+      "streak3BonusTeamPoints": 50
+    },
+    "skills": [
+      { "id": "shield",   "name": "Khiên Tuyết Ấm",     "icon": "assets/sk-shield.png",   "usesPerMatch": 1, "levels": [0, 1, 2], "effect": "keep_streak_and_grant_30pts_on_wrong" },
+      { "id": "double",   "name": "Ngôi Sao Nhân Đôi",  "icon": "assets/sk-double.png",   "usesPerMatch": 1, "levels": [0, 1, 2], "effect": "multiply_current_round_points_by_2_if_activated_before_options" },
+      { "id": "snowball", "name": "Bão Tuyết Mờ 1 Giây","icon": "assets/sk-snowball.png", "overlay": "assets/fx-frost-overlay.png", "usesPerMatch": 1, "levels": [1, 2], "unlockStreak": 3, "targetImmunityRounds": 3, "effect": "frost_direct_lane_opponent_for_wipe_gesture" }
+    ]
+  },
+  "vfxChoreography": {
+    "laneClashOutcomes": {
+      "SOLO_WIN":    { "winnerPose": "dash_snowball_then_jump_v_cheer", "loserPose": "slide_back_1_step_dizzy_stars_on_snow_puff", "laneShift": 0.18 },
+      "SPEED_WIN":   { "winnerPose": "center_spark_clash_then_shoulder_push", "loserPose": "slide_back_half_step", "callout": "⚡ NHANH HƠN {diffSec}s!", "laneShift": 0.10 },
+      "TIE_CLASH":   { "bothPose": "rainbow_snow_burst_high_five", "callout": "✦ HÒA SIÊU TỐC!", "laneShift": 0.0 },
+      "BOTH_MISS":   { "bothPose": "slip_sit_scratch_head", "sfx": "funny_boing", "laneShift": 0.0 },
+      "STREAK_AURA": { "minStreak": 3, "aura": "golden_aurora_ring_under_skates", "callout": "🔥 BẤT BẠI ×{streak}!" }
+    },
+    "teamVictoryCutscene": [
+      { "scene": 1, "startMs": 0,    "endMs": 2000, "action": "5_winners_v_formation_rainbow_snow_wave_pushing_losers_into_fluffy_snowbank" },
+      { "scene": 2, "startMs": 2000, "endMs": 4500, "action": "stage_lights_candy_confetti_5_winners_synchronized_jump_dance_around_arena_cup", "prop": "assets/arena-cup.png" },
+      { "scene": 3, "startMs": 4500, "endMs": 6000, "action": "golden_spotlight_on_top_scorer_mvp_crown_and_certificate_download", "props": ["assets/arena-podium.png", "assets/cert-frame-pec.png"] }
+    ]
+  },
+  "questionBank": {
+    "kids": [
+      { "id": "K01", "tier": 1, "q": "Listen! Which one is a STAR?", "audio": "star", "opts": ["⭐", "🌙", "🎄", "🔔"], "ans": 0 },
+      { "id": "K02", "tier": 1, "q": "What color is Santa's hat? 🎅", "audio": "hat", "opts": ["Blue", "Red", "Green", "Purple"], "ans": 1 },
+      { "id": "K03", "tier": 1, "q": "Listen! Touch the SNOWMAN!", "audio": "snowman", "opts": ["🦌", "⛄", "🧸", "🎂"], "ans": 1 },
+      { "id": "K04", "tier": 1, "q": "Which animal loves milk and says Meow? 🥛", "audio": "cat", "opts": ["🐶 dog", "🐷 pig", "🐱 cat", "🦆 duck"], "ans": 2 },
+      { "id": "K05", "tier": 1, "q": "Count the gifts: 🎁🎁🎁 — How many?", "audio": "gift", "opts": ["Two", "Three", "Four", "Five"], "ans": 1 },
+      { "id": "K06", "tier": 2, "q": "Put on your warm ________! 🧣", "audio": "scarf", "opts": ["scarf", "shoes", "apple", "train"], "ans": 0 },
+      { "id": "K07", "tier": 2, "q": "Which one is COLD and white? ❄️", "audio": "snow", "opts": ["pizza", "snow", "bread", "sun"], "ans": 1 },
+      { "id": "K08", "tier": 2, "q": "Find the missing letter: C _ N D Y 🍬", "audio": "candy", "opts": ["A", "E", "O", "U"], "ans": 0 },
+      { "id": "K09", "tier": 2, "q": "Listen! Put the purple bell on the tree.", "audio": "put-the-purple-bell-on-the-tree", "opts": ["🔴 Red bell", "🔵 Blue bell", "🟣 Purple bell", "🟣 Purple gift"], "ans": 2 },
+      { "id": "K10", "tier": 2, "q": "Which animal pulls Santa's sleigh? 🛷", "audio": "deer", "opts": ["🐰 rabbit", "🐟 fish", "🦌 deer", "🐮 cow"], "ans": 2 },
+      { "id": "K11", "tier": 3, "q": "Odd one out! Which one is NOT food?", "audio": "gloves", "opts": ["🎂 cake", "🍪 cookie", "🧤 gloves", "🍎 apple"], "ans": 2 },
+      { "id": "K12", "tier": 3, "q": "Listen! Put the yellow star on the top.", "audio": "put-the-yellow-star-on-the-top", "opts": ["Under the bed", "On top of the tree", "In the milk", "In the shoe"], "ans": 1 },
+      { "id": "K13", "tier": 3, "q": "Unscramble the word: G - I - F - T 🎁", "audio": "gift", "opts": ["FIGT", "GIFT", "TGIF", "GITF"], "ans": 1 },
+      { "id": "K14", "tier": 3, "q": "Which pair is clothes for winter?", "audio": "clothes", "opts": ["🧣 scarf & 🧤 gloves", "🍎 apple & 🥛 milk", "🚗 car & 🤖 robot", "🐟 fish & 🐦 bird"], "ans": 0 },
+      { "id": "K15", "tier": 3, "q": "What do we say on December 25th? 🎉", "audio": "merry-christmas", "opts": ["Happy Birthday!", "Good night!", "Merry Christmas!", "Goodbye!"], "ans": 2 }
+    ],
+    "junior": [
+      { "id": "J01", "tier": 1, "q": "Santa Claus climbs down the ________ to bring gifts.", "opts": ["window", "chimney", "garden", "balcony"], "ans": 1 },
+      { "id": "J02", "tier": 1, "q": "It is freezing outside! Don't forget to wear your ________.", "opts": ["sunglasses", "sandals", "mittens", "shorts"], "ans": 2 },
+      { "id": "J03", "tier": 1, "q": "Children hang Christmas ________ by the fireplace.", "opts": ["stockings", "pockets", "blankets", "pillows"], "ans": 0 },
+      { "id": "J04", "tier": 1, "q": "Look! The children ________ a big snowman right now.", "opts": ["build", "built", "are building", "builds"], "ans": 2 },
+      { "id": "J05", "tier": 1, "q": "Which word has a DIFFERENT vowel sound?", "opts": ["snow", "coat", "cow", "bowl"], "ans": 2 },
+      { "id": "J06", "tier": 2, "q": "Elves work hard in Santa's ________ at the North Pole.", "opts": ["workshop", "hospital", "airport", "library"], "ans": 0 },
+      { "id": "J07", "tier": 2, "q": "________ gifts did you wrap today? — Six gifts!", "opts": ["How much", "How many", "How long", "How often"], "ans": 1 },
+      { "id": "J08", "tier": 2, "q": "A circle of pine leaves hung on the door is a ________.", "opts": ["ribbon", "candle", "wreath", "sleigh"], "ans": 2 },
+      { "id": "J09", "tier": 2, "q": "Last Christmas, my family ________ hot chocolate together.", "opts": ["drink", "drinks", "drank", "drinking"], "ans": 2 },
+      { "id": "J10", "tier": 2, "q": "Correct sentence: tree / decorated / lights / We / the / with", "opts": ["We lights decorated with the tree.", "We decorated the tree with lights.", "The tree decorated we with lights.", "With lights we the tree decorated."], "ans": 1 },
+      { "id": "J11", "tier": 3, "q": "Which sleigh is moving ________: the red one or the blue one?", "opts": ["fast", "faster", "fastest", "more fast"], "ans": 1 },
+      { "id": "J12", "tier": 3, "q": "If it ________ tonight, the whole village will turn white!", "opts": ["snow", "snowed", "snows", "snowing"], "ans": 2 },
+      { "id": "J13", "tier": 3, "q": "Spot the mistake: She writed a long letter to Santa yesterday.", "opts": ["She", "writed", "long", "to"], "ans": 1 },
+      { "id": "J14", "tier": 3, "q": "I have a carrot nose, coal eyes, and melt in the sun. Who am I?", "opts": ["A gingerbread man", "A reindeer", "A snowman", "A penguin"], "ans": 2 },
+      { "id": "J15", "tier": 3, "q": "Thank you for helping me fix my sleigh! — Best reply:", "opts": ["You're welcome, Santa!", "Never mind!", "Yes, please!", "Same to you!"], "ans": 0 }
+    ],
+    "teen": [
+      { "id": "T01", "tier": 1, "q": "Traditional songs sung at Christmas are called Christmas ________.", "opts": ["anthems", "carols", "chants", "rhymes"], "ans": 1 },
+      { "id": "T02", "tier": 1, "q": "By Christmas Eve, PEC students ________ over 1,000 gifts!", "opts": ["collect", "collected", "will have collected", "are collecting"], "ans": 2 },
+      { "id": "T03", "tier": 1, "q": "Which word means shining softly with a flickering light?", "opts": ["twinkling", "freezing", "melting", "roaring"], "ans": 0 },
+      { "id": "T04", "tier": 1, "q": "Neither Santa nor the elves ________ tired after the journey.", "opts": ["is", "was", "were", "has been"], "ans": 2 },
+      { "id": "T05", "tier": 1, "q": "Idiom: The more, the ________! Come join our Christmas party!", "opts": ["happier", "merrier", "better", "jollier"], "ans": 1 },
+      { "id": "T06", "tier": 2, "q": "Despite ________, hundreds of families joined the PEC Festival.", "opts": ["it snowed", "the heavy snow", "snows", "of the snow"], "ans": 1 },
+      { "id": "T07", "tier": 2, "q": "What does the idiom 'in the nick of time' mean?", "opts": ["Very early", "Just in time before it is too late", "Once a year", "Wasting time"], "ans": 1 },
+      { "id": "T08", "tier": 2, "q": "Which word has primary stress on the SECOND syllable?", "opts": ["CHRISTmas", "REINdeer", "DeCEMber", "SNOWflake"], "ans": 2 },
+      { "id": "T09", "tier": 2, "q": "Santa asked the little boy what ________ for Christmas.", "opts": ["did he want", "he wants", "he wanted", "wanted he"], "ans": 2 },
+      { "id": "T10", "tier": 2, "q": "Heartfelt gifts are far more meaningful than ________ ones.", "opts": ["extravagant", "generous", "thoughtful", "festive"], "ans": 0 },
+      { "id": "T11", "tier": 3, "q": "Idiom: Seeing only a tiny part is 'just the tip of the ________'.", "opts": ["mountain", "glacier", "iceberg", "snowfall"], "ans": 2 },
+      { "id": "T12", "tier": 3, "q": "Had the reindeer not seen the star, the sleigh ________ lost.", "opts": ["would get", "would have gotten", "will get", "got"], "ans": 1 },
+      { "id": "T13", "tier": 3, "q": "When someone quits a habit 'cold turkey', how do they do it?", "opts": ["During Christmas", "Slowly", "Abruptly and completely", "Secretly"], "ans": 2 },
+      { "id": "T14", "tier": 3, "q": "Choose the closest synonym to JOVIAL ('a jovial Santa'):", "opts": ["Cheerful and friendly", "Strict and quiet", "Exhausted", "Mysterious"], "ans": 0 },
+      { "id": "T15", "tier": 3, "q": "Proverb: One kind word can warm three ________ months.", "opts": ["autumn", "winter", "cloudy", "stormy"], "ans": 1 }
+    ],
+    "audienceGoldenQuestions": [
+      { "id": "A01", "q": "Trung tâm Anh ngữ PEC hiện có bao nhiêu cơ sở đón bé đổi quà Giáng Sinh tại Hải Phòng?", "opts": ["3 cơ sở", "5 cơ sở", "2 cơ sở", "4 cơ sở"], "ans": 1 },
+      { "id": "A02", "q": "Linh vật Tuần Lộc của Làng Giáng Sinh PEC có chiếc mũi màu gì đặc biệt?", "opts": ["Đỏ chót", "Nâu đen dễ thương", "Xanh băng", "Vàng óng"], "ans": 1 },
+      { "id": "A03", "q": "Slogan gắn liền với thương hiệu Anh ngữ PEC từ năm 2005 là gì?", "opts": ["Fly to the sky!", "Learning to be!", "Win the game!", "Let it snow!"], "ans": 1 }
+    ]
+  }
+}
