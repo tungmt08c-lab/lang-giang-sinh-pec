@@ -10,18 +10,18 @@
     { "id": "thuynguyen", "name": "Thủy Nguyên",      "teamTitle": "Tuần Lộc Tím Đêm",    "color": "#A146C9", "badge": "assets/badge-branch-thuynguyen.png" }
   ],
   "zodiacAvatars": [
-    { "id": "ty",   "order": 1,  "zodiac": "Tý",   "name": "Chuột Kem",      "years": [2020, 2008], "file": "assets/av-01-ty.png",   "accent": "#BCC8E6" },
-    { "id": "suu",  "order": 2,  "zodiac": "Sửu",  "name": "Trâu Vàng",      "years": [2021, 2009], "file": "assets/av-02-suu.png",  "accent": "#FFD525" },
-    { "id": "dan",  "order": 3,  "zodiac": "Dần",  "name": "Hổ Bông",        "years": [2022, 2010], "file": "assets/av-03-dan.png",  "accent": "#FFAE42" },
-    { "id": "mao",  "order": 4,  "zodiac": "Mão",  "name": "Mèo Tuyết",      "years": [2023, 2011], "file": "assets/av-04-mao.png",  "accent": "#FFB0C8" },
-    { "id": "thin", "order": 5,  "zodiac": "Thìn", "name": "Rồng Ngọc",      "years": [2024, 2012], "file": "assets/av-05-thin.png", "accent": "#5CE0B8" },
-    { "id": "ran",  "order": 6,  "zodiac": "Tỵ",   "name": "Rắn Bạc Hà",     "years": [2013],       "file": "assets/av-06-ran.png",  "accent": "#82ED9E" },
-    { "id": "ngo",  "order": 7,  "zodiac": "Ngọ",  "name": "Ngựa Pony",      "years": [2014],       "file": "assets/av-07-ngo.png",  "accent": "#E0985A" },
-    { "id": "mui",  "order": 8,  "zodiac": "Mùi",  "name": "Dê Bông Xù",     "years": [2015],       "file": "assets/av-08-mui.png",  "accent": "#F2C98A" },
-    { "id": "than", "order": 9,  "zodiac": "Thân", "name": "Khỉ Nhí",        "years": [2016],       "file": "assets/av-09-than.png", "accent": "#C9834B" },
-    { "id": "dau",  "order": 10, "zodiac": "Dậu",  "name": "Gà Vàng",        "years": [2017],       "file": "assets/av-10-dau.png",  "accent": "#FFE45E" },
-    { "id": "tuat", "order": 11, "zodiac": "Tuất", "name": "Cún Corgi",      "years": [2018],       "file": "assets/av-11-tuat.png", "accent": "#F2A855" },
-    { "id": "hoi",  "order": 12, "zodiac": "Hợi",  "name": "Heo Hồng",       "years": [2019],       "file": "assets/av-12-hoi.png",  "accent": "#FFB3C9" }
+    { "id": "ty",   "order": 1,  "zodiac": "Tý",   "name": "Chuột Vàng",   "years": [2020, 2008], "file": "assets/av-01-ty.png",   "accent": "#FFF3BD" },
+    { "id": "suu",  "order": 2,  "zodiac": "Sửu",  "name": "Trâu Chuông",  "years": [2021, 2009], "file": "assets/av-02-suu.png",  "accent": "#E6F2B8" },
+    { "id": "dan",  "order": 3,  "zodiac": "Dần",  "name": "Hổ Con",       "years": [2022, 2010], "file": "assets/av-03-dan.png",  "accent": "#FFF0B5" },
+    { "id": "mao",  "order": 4,  "zodiac": "Mão",  "name": "Thỏ Ngọc",     "years": [2023, 2011], "file": "assets/av-04-mao.png",  "accent": "#FFE0E6" },
+    { "id": "thin", "order": 5,  "zodiac": "Thìn", "name": "Rồng Ngọc",    "years": [2024, 2012], "file": "assets/av-05-thin.png", "accent": "#D4F5EA" },
+    { "id": "ran",  "order": 6,  "zodiac": "Tỵ",   "name": "Rắn Nhí",      "years": [2013],       "file": "assets/av-06-ran.png",  "accent": "#EAE0FA" },
+    { "id": "ngo",  "order": 7,  "zodiac": "Ngọ",  "name": "Ngựa Nâu",     "years": [2014],       "file": "assets/av-07-ngo.png",  "accent": "#FFE2CC" },
+    { "id": "mui",  "order": 8,  "zodiac": "Mùi",  "name": "Cừu Bông",     "years": [2015],       "file": "assets/av-08-mui.png",  "accent": "#E1F4CD" },
+    { "id": "than", "order": 9,  "zodiac": "Thân", "name": "Khỉ Chuối",    "years": [2016],       "file": "assets/av-09-than.png",  "accent": "#FFF1BA" },
+    { "id": "dau",  "order": 10, "zodiac": "Dậu",  "name": "Gà Trống",     "years": [2017],       "file": "assets/av-10-dau.png",  "accent": "#DCEFFC" },
+    { "id": "tuat", "order": 11, "zodiac": "Tuất", "name": "Cún Corgi",    "years": [2018],       "file": "assets/av-11-tuat.png", "accent": "#FFE4CE" },
+    { "id": "hoi",  "order": 12, "zodiac": "Hợi",  "name": "Heo Hồng",     "years": [2019],       "file": "assets/av-12-hoi.png",  "accent": "#FFE0E9" }
   ],
   "matchRules": {
     "mode": "5v5_parallel_lane_duel",

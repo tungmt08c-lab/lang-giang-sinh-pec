@@ -95,43 +95,65 @@
 .ar-hero-preview {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 16px;
-  background: linear-gradient(90deg, rgba(20, 12, 54, 0.72), rgba(55, 36, 118, 0.65));
-  border: 2px solid rgba(255, 230, 128, 0.55);
-  margin-bottom: 9px;
+  gap: 11px;
+  padding: 8px 11px;
+  border-radius: 18px;
+  background: linear-gradient(95deg, #FFFDF7 0%, #FFF4DF 100%);
+  border: 2.5px solid #FFD525;
+  box-shadow: 0 4px 0 rgba(20, 10, 50, 0.35);
+  margin-bottom: 10px;
+  color: #3B1F2B;
+}
+.ar-hero-medallion {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: var(--halo, #FFE0E6);
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 3px 8px rgba(90, 50, 20, 0.16);
+  display: grid;
+  place-items: center;
+  flex: none;
 }
 .ar-hero-preview .av-big {
-  width: 66px;
-  height: 66px;
+  width: 68px;
+  height: 68px;
   object-fit: contain;
   flex: none;
-  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 3px 3px rgba(60, 30, 15, 0.22));
   animation: bob 2.2s ease-in-out infinite;
 }
 .ar-hero-preview .br-ico {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   flex: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
 }
 .ar-hero-info { flex: 1; }
 .ar-hero-info b {
   display: block;
   font-family: 'Baloo 2', sans-serif;
   font-size: 18px;
-  color: #fff;
+  color: #3B1F2B;
   line-height: 1.1;
 }
 .ar-hero-info small {
   display: block;
   font-size: 12px;
-  color: #FFE680;
-  font-weight: 700;
+  color: #B81922;
+  font-weight: 800;
   margin-top: 2px;
 }
 
+/* Khung bảng 12 Linh Thú Kawaii tông Kem Ấm + Vòng Hào Quang Pastel chuẩn ảnh mẫu */
+.ar-zodiac-tray {
+  background: #FCEFD9;
+  border-radius: 18px;
+  padding: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 2px 6px rgba(140, 90, 40, 0.12);
+}
 .ar-zodiac-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -142,52 +164,76 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6px 3px 5px;
-  border-radius: 15px;
-  background: radial-gradient(circle at 50% 30%, #4E399C, #241754);
-  border: 2px solid rgba(255, 255, 255, 0.38);
-  box-shadow: 0 3px 0 #150C35;
-  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+  justify-content: space-between;
+  padding: 6px 3px 4px;
+  border-radius: 14px;
+  background: #FFFDF8;
+  border: 2px solid #F0DFC4;
+  box-shadow: 0 3px 0 #DFC9A8;
+  transition: transform 0.16s cubic-bezier(0.3, 1.5, 0.5, 1), border-color 0.16s, box-shadow 0.16s;
+}
+.ar-zbtn .zhalo {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--halo, #FFF3BD);
+  display: grid;
+  place-items: center;
+}
+.ar-zbtn .zhalo::after {
+  content: '✦';
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  font-size: 10px;
+  color: #F4B400;
+  opacity: 0.75;
 }
 .ar-zbtn img {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+  position: relative;
+  z-index: 1;
+  transition: transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.ar-zbtn:hover img {
+  transform: scale(1.08) translateY(-2px);
 }
 .ar-zbtn .zn {
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.05;
-  color: #fff;
-  margin-top: 2px;
+  color: var(--zcol, #9A4E1C);
+  margin-top: 3px;
   white-space: nowrap;
 }
-.ar-zbtn .zy {
-  font-size: 9.5px;
-  color: #C9BEEF;
-  font-weight: 700;
-}
 .ar-zbtn.on {
-  background: radial-gradient(circle at 50% 28%, #7B5CE6, #321E78);
-  border-color: #FFD525;
-  box-shadow: 0 0 0 3px rgba(255, 213, 37, 0.35), 0 4px 0 #150C35;
-  transform: translateY(-2px);
+  background: #FFFFFF;
+  border: 2.5px solid #E73236;
+  box-shadow: 0 0 0 3px #FFD525, 0 5px 10px rgba(120, 40, 20, 0.25);
+  transform: translateY(-3px) scale(1.03);
+  z-index: 2;
+}
+.ar-zbtn.on img {
+  transform: scale(1.1) translateY(-2px);
 }
 .ar-zbtn.on::after {
-  content: '✓';
+  content: '★';
   position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 19px;
-  height: 19px;
+  top: -6px;
+  right: -6px;
+  width: 21px;
+  height: 21px;
   border-radius: 50%;
-  background: #33B865;
-  border: 2px solid #fff;
-  font: 800 11px/15px 'Baloo 2', sans-serif;
-  color: #fff;
+  background: linear-gradient(180deg, #FF6066, #D11F29);
+  border: 2px solid #FFD525;
+  font: 800 11px/17px 'Baloo 2', sans-serif;
+  color: #FFE680;
   text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ar-cta-main {

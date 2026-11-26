@@ -18,18 +18,18 @@
       { id: 'thuynguyen', name: 'Thủy Nguyên', teamTitle: 'Tuần Lộc Tím Đêm', color: '#A146C9', badge: 'assets/badge-branch-thuynguyen.png' }
     ],
     zodiacAvatars: [
-      { id: 'ty', order: 1, zodiac: 'Tý', name: 'Chuột Kem', years: [2020, 2008], file: 'assets/av-01-ty.png', accent: '#BCC8E6' },
-      { id: 'suu', order: 2, zodiac: 'Sửu', name: 'Trâu Vàng', years: [2021, 2009], file: 'assets/av-02-suu.png', accent: '#FFD525' },
-      { id: 'dan', order: 3, zodiac: 'Dần', name: 'Hổ Bông', years: [2022, 2010], file: 'assets/av-03-dan.png', accent: '#FFAE42' },
-      { id: 'mao', order: 4, zodiac: 'Mão', name: 'Mèo Tuyết', years: [2023, 2011], file: 'assets/av-04-mao.png', accent: '#FFB0C8' },
-      { id: 'thin', order: 5, zodiac: 'Thìn', name: 'Rồng Ngọc', years: [2024, 2012], file: 'assets/av-05-thin.png', accent: '#5CE0B8' },
-      { id: 'ran', order: 6, zodiac: 'Tỵ', name: 'Rắn Bạc Hà', years: [2013], file: 'assets/av-06-ran.png', accent: '#82ED9E' },
-      { id: 'ngo', order: 7, zodiac: 'Ngọ', name: 'Ngựa Pony', years: [2014], file: 'assets/av-07-ngo.png', accent: '#E0985A' },
-      { id: 'mui', order: 8, zodiac: 'Mùi', name: 'Dê Bông Xù', years: [2015], file: 'assets/av-08-mui.png', accent: '#F2C98A' },
-      { id: 'than', order: 9, zodiac: 'Thân', name: 'Khỉ Nhí', years: [2016], file: 'assets/av-09-than.png', accent: '#C9834B' },
-      { id: 'dau', order: 10, zodiac: 'Dậu', name: 'Gà Vàng', years: [2017], file: 'assets/av-10-dau.png', accent: '#FFE45E' },
-      { id: 'tuat', order: 11, zodiac: 'Tuất', name: 'Cún Corgi', years: [2018], file: 'assets/av-11-tuat.png', accent: '#F2A855' },
-      { id: 'hoi', order: 12, zodiac: 'Hợi', name: 'Heo Hồng', years: [2019], file: 'assets/av-12-hoi.png', accent: '#FFB3C9' }
+      { id: 'ty', order: 1, zodiac: 'Tý', name: 'Chuột Vàng', years: [2020, 2008], file: 'assets/av-01-ty.png', accent: '#FFF3BD', labelColor: '#A8581B' },
+      { id: 'suu', order: 2, zodiac: 'Sửu', name: 'Trâu Chuông', years: [2021, 2009], file: 'assets/av-02-suu.png', accent: '#E6F2B8', labelColor: '#4B7A28' },
+      { id: 'dan', order: 3, zodiac: 'Dần', name: 'Hổ Con', years: [2022, 2010], file: 'assets/av-03-dan.png', accent: '#FFF0B5', labelColor: '#D6880E' },
+      { id: 'mao', order: 4, zodiac: 'Mão', name: 'Thỏ Ngọc', years: [2023, 2011], file: 'assets/av-04-mao.png', accent: '#FFE0E6', labelColor: '#E06388' },
+      { id: 'thin', order: 5, zodiac: 'Thìn', name: 'Rồng Ngọc', years: [2024, 2012], file: 'assets/av-05-thin.png', accent: '#D4F5EA', labelColor: '#229A7E' },
+      { id: 'ran', order: 6, zodiac: 'Tỵ', name: 'Rắn Nhí', years: [2013], file: 'assets/av-06-ran.png', accent: '#EAE0FA', labelColor: '#7C58B5' },
+      { id: 'ngo', order: 7, zodiac: 'Ngọ', name: 'Ngựa Nâu', years: [2014], file: 'assets/av-07-ngo.png', accent: '#FFE2CC', labelColor: '#A3472A' },
+      { id: 'mui', order: 8, zodiac: 'Mùi', name: 'Cừu Bông', years: [2015], file: 'assets/av-08-mui.png', accent: '#E1F4CD', labelColor: '#5E9432' },
+      { id: 'than', order: 9, zodiac: 'Thân', name: 'Khỉ Chuối', years: [2016], file: 'assets/av-09-than.png', accent: '#FFF1BA', labelColor: '#9C5523' },
+      { id: 'dau', order: 10, zodiac: 'Dậu', name: 'Gà Trống', years: [2017], file: 'assets/av-10-dau.png', accent: '#DCEFFC', labelColor: '#3474B4' },
+      { id: 'tuat', order: 11, zodiac: 'Tuất', name: 'Cún Corgi', years: [2018], file: 'assets/av-11-tuat.png', accent: '#FFE4CE', labelColor: '#BA6928' },
+      { id: 'hoi', order: 12, zodiac: 'Hợi', name: 'Heo Hồng', years: [2019], file: 'assets/av-12-hoi.png', accent: '#FFE0E9', labelColor: '#D96884' }
     ],
     questionBank: {
       kids: [
@@ -91,6 +91,20 @@
     }
   };
 
+  const ZODIAC_STYLE = {
+    ty:   { halo: '#FFF3BD', col: '#A8581B' },
+    suu:  { halo: '#E6F2B8', col: '#4B7A28' },
+    dan:  { halo: '#FFF0B5', col: '#D6880E' },
+    mao:  { halo: '#FFE0E6', col: '#E06388' },
+    thin: { halo: '#D4F5EA', col: '#229A7E' },
+    ran:  { halo: '#EAE0FA', col: '#7C58B5' },
+    ngo:  { halo: '#FFE2CC', col: '#A3472A' },
+    mui:  { halo: '#E1F4CD', col: '#5E9432' },
+    than: { halo: '#FFF1BA', col: '#9C5523' },
+    dau:  { halo: '#DCEFFC', col: '#3474B4' },
+    tuat: { halo: '#FFE4CE', col: '#BA6928' },
+    hoi:  { halo: '#FFE0E9', col: '#D96884' }
+  };
   let CFG = FALLBACK_CFG;
   fetch('data/arena-5v5-config.json')
     .then(r => (r.ok ? r.json() : null))
@@ -362,8 +376,8 @@
         <div class="ar-wrap">
           <div class="ar-card">
             <div class="ar-sec-head">
-              <h4>1. Đội Cơ Sở & Nhân Vật Của Bé</h4>
-              <span>12 Con Giáp Chibi</span>
+              <h4>1. Đội Cơ Sở & Linh Thú Của Bé</h4>
+              <span>12 Linh thú</span>
             </div>
 
             <div class="ar-setup-row">
@@ -379,23 +393,29 @@
               </label>
             </div>
 
-            <div class="ar-hero-preview">
-              <img class="av-big" src="${av.file}" alt="${esc(av.name)}">
+            <div class="ar-hero-preview" style="--halo:${(ZODIAC_STYLE[av.id] || ZODIAC_STYLE.mao).halo}">
+              <div class="ar-hero-medallion">
+                <img class="av-big" src="${av.file}" alt="${esc(av.name)}">
+              </div>
               <div class="ar-hero-info">
-                <b>${esc(S.profile ? S.profile.name : selPlayerName)} · ${esc(av.zodiac)} (${esc(av.name)})</b>
-                <small style="color:${camp.color === '#E73236' ? '#FF9AA0' : '#FFE680'}">⚑ Đội PEC ${esc(camp.name)} — ${esc(camp.teamTitle)}</small>
+                <b>${esc(S.profile ? S.profile.name : selPlayerName)} · Linh thú ${esc(av.zodiac)}</b>
+                <small style="color:${camp.color}">⚑ Đội PEC ${esc(camp.name)} — ${esc(camp.teamTitle)}</small>
               </div>
               <img class="br-ico" src="${camp.badge}" alt="${esc(camp.name)}">
             </div>
 
-            <div class="ar-zodiac-grid" id="arZGrid">
-              ${CFG.zodiacAvatars.map(z => `
-                <button type="button" class="ar-zbtn ${z.id === selAvatar ? 'on' : ''}" data-zid="${z.id}" aria-label="${esc(z.zodiac)} ${esc(z.name)}">
-                  <img src="${z.file}" alt="${esc(z.name)}">
-                  <span class="zn">${z.order}. ${esc(z.zodiac)}</span>
-                  <span class="zy">${esc(z.name)}</span>
-                </button>
-              `).join('')}
+            <div class="ar-zodiac-tray">
+              <div class="ar-zodiac-grid" id="arZGrid">
+                ${CFG.zodiacAvatars.map(z => {
+                  const st = ZODIAC_STYLE[z.id] || ZODIAC_STYLE.ty;
+                  return `
+                    <button type="button" class="ar-zbtn ${z.id === selAvatar ? 'on' : ''}" data-zid="${z.id}" style="--halo:${st.halo};--zcol:${st.col}" aria-label="${esc(z.zodiac)}">
+                      <span class="zhalo"><img src="${z.file}" alt="${esc(z.zodiac)}"></span>
+                      <span class="zn">${esc(z.zodiac)}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
             </div>
           </div>
 
@@ -421,6 +441,20 @@
       };
 
       const readPin = () => { roomPin = (stage.querySelector('#arPinIn').value || 'PEC8').trim().toUpperCase() || 'PEC8'; return roomPin; };
+      const btnTr = stage.querySelector('#arBtnTrailer');
+      if (btnTr) btnTr.onclick = () => {
+        const ov = document.createElement('div');
+        ov.className = 'ov show';
+        ov.style.zIndex = '95';
+        ov.innerHTML = `<div class="panel" style="width:min(760px,95vw);padding:14px;text-align:center">
+          <div class="phead"><div><h3 class="g ol" style="font-size:22px">🎬 Trailer Đấu Trường Bông Tuyết 5vs5</h3></div><button type="button" class="x" id="trClose">×</button></div>
+          <video src="trailer-arena-5v5.mp4" controls autoplay playsinline style="width:100%;border-radius:16px;border:2.5px solid #FFD525;background:#0E0826;margin-top:6px"></video>
+        </div>`;
+        document.body.appendChild(ov);
+        const close = () => { const v = ov.querySelector('video'); if (v) v.pause(); if (ov.parentNode) ov.parentNode.removeChild(ov); };
+        ov.querySelector('#trClose').onclick = close;
+        ov.onclick = e => { if (e.target === ov) close(); };
+      };
       // Vé chỉ bị trừ khi bấm vào trận, không trừ khi mới mở sảnh
       const qb = stage.querySelector('#arBtnQuick');
       qb.onclick = () => {
