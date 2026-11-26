@@ -670,9 +670,11 @@
       if (!d.draw) {
         html = `<div class="ar-card" style="text-align:center">
           <img src="assets/arena-cup.png" alt="" style="width:110px;height:110px;object-fit:contain">
-          <h4 style="margin:6px 0">Vòng Đấu trường 5vs5 sắp mở</h4>
-          <p class="hint">Ban tổ chức chọn các bạn điểm mùa cao nhất toàn hệ thống, bốc thăm thành đội 5 bạn. Mỗi bạn đấu tay đôi với một bạn đội kia, mỗi cặp một bộ câu hỏi riêng.</p>
-          <p class="hint" style="color:#FFE680">Bé chơi đều các trạm mỗi ngày để leo hạng nhé!</p></div>`;
+          <h4 style="margin:6px 0">Chung kết Đấu trường 5vs5</h4>
+          <p class="hint">Các bạn điểm mùa cao nhất toàn hệ thống được bốc thăm thành đội 5 bạn. Mỗi bạn đấu tay đôi với một bạn đội kia, mỗi cặp một bộ câu hỏi riêng.</p>
+          <p class="hint" style="color:#FFE680">Bé chơi đều các trạm mỗi ngày để leo hạng nhé!</p>
+          <button type="button" class="btn" id="hubTry" style="margin-top:10px;width:100%">❄️ Trải nghiệm ngay: đấu cùng đội bạn máy</button>
+          <p class="hint" style="margin:6px 0 0;font-size:12px">Bé cùng 4 bạn máy đấu với đội 5 bạn máy, 10 lượt. Chơi thoải mái, không dùng vé, không tính điểm.</p></div>`;
       } else {
         const dr = d.draw;
         if (d.mine) {
@@ -699,7 +701,9 @@
             <div class="ar-round-pill" style="display:inline-block;margin-bottom:6px">🏆 ${esc(dr.label)}</div>
             <h4 style="margin:4px 0">Vòng đấu của top ${dr.n} toàn hệ thống</h4>
             ${dr.at ? `<p class="hint" style="color:#FFE680;margin:2px 0">Giờ thi: ${esc(dr.at)}</p>` : ''}
-            <p class="hint">Bé vào xem trực tiếp và cổ vũ các bạn nhé. Mùa sau bé leo hạng để vào thi cùng!</p></div>`;
+            <p class="hint">Bé vào xem trực tiếp và cổ vũ các bạn nhé!</p>
+            <button type="button" class="btn" id="hubTry" style="margin-top:10px;width:100%">❄️ Trải nghiệm ngay: đấu cùng đội bạn máy</button>
+          <p class="hint" style="margin:6px 0 0;font-size:12px">Bé cùng 4 bạn máy đấu với đội 5 bạn máy, 10 lượt. Chơi thoải mái, không dùng vé, không tính điểm.</p></div>`;
         }
         html += d.matches.map(matchCard).join('');
       }
@@ -708,6 +712,7 @@
       stage.querySelector('#hubHome').onclick = () => B.goHome();
       const go = stage.querySelector('#hubGo'); if (go) go.onclick = () => { B.unlockAudio(); renderLiveRoom(d.mine.room); };
       const pr = stage.querySelector('#hubPractice'); if (pr) pr.onclick = () => { B.unlockAudio(); renderLobby(); };
+      const tr = stage.querySelector('#hubTry'); if (tr) tr.onclick = () => { B.unlockAudio(); renderLobby(); };
     }
 
     /* ==================== 2B. PHÒNG THI GO-LIVE (MÁY CHỦ GIỮ ĐỀ VÀ CHẤM ĐIỂM) ==================== */
