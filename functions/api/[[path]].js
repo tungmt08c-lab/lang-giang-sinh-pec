@@ -9,6 +9,7 @@ const ST = {
   wrap: { min: 10, candy: 6, pts: c => c * 15 + 10 },
   tree: { min: 8, candy: 6, pts: c => c * 15 + 10 },
   sled: { min: 6, candy: 17, pts: c => c * 6 },
+  snowman: { min: 10, candy: 5, pts: c => c * 20 },
 };
 const ROUND_TTL = 15 * 60 * 1000;
 const CODE_AB = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

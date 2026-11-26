@@ -130,6 +130,41 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
 .tile.drag{position:fixed;z-index:80;pointer-events:none;transform:scale(1.18) rotate(-6deg);box-shadow:0 14px 20px rgba(0,0,0,.45)}
 .hint{font-size:13px;color:#FFE9D6;text-align:center;margin:0;font-weight:600}
 .shake{animation:shake .45s}
+#boot{position:fixed;top:0;right:0;bottom:0;left:0;z-index:300;background:radial-gradient(circle at 50% 32%,#4B2A8F,#1B1048 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;transition:opacity .5s}
+#boot.out{opacity:0;pointer-events:none}
+#boot .blogo{width:86px;height:44px;object-fit:contain;background:#fff;border-radius:12px;padding:4px 8px}
+#bmasc{width:150px;height:150px;object-fit:contain;opacity:0;transition:opacity .35s;animation:bob 2.2s ease-in-out infinite}
+#bmasc.on{opacity:1}
+#boot .bt{font-size:26px;margin:0}
+#boot .bbar{width:220px;height:16px;border-radius:10px;background:rgba(255,255,255,.18);border:2px solid #fff;overflow:hidden}
+#boot .bbar i{display:block;height:100%;width:4%;background:repeating-linear-gradient(45deg,#E73236 0 10px,#fff 10px 20px);transition:width .25s}
+#boot .bs{font-size:13px;font-weight:700;color:#E4DCFF;margin:0}
+.tag .clue{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 12px;text-align:center}
+.tag .clue .pic{font-size:84px}
+.tag .vi{font:800 17px/1.2 'Baloo 2',system-ui,sans-serif;color:#7A2E12;background:#fff;border-radius:12px;padding:3px 10px}
+.tag .vi.big{font-size:22px;padding:8px 12px;box-shadow:0 3px 0 #F2C6A8}
+.tag .vi small{display:block;font-size:12px;color:#B0604A;font-weight:700}
+.slots.sm{gap:5px}.slots.sm .slot{width:36px;height:46px;font-size:25px;border-radius:11px}
+.slots.xs{gap:4px}.slots.xs .slot{width:27px;height:40px;font-size:20px;border-radius:9px;border-width:2px}
+.tiles.sm{gap:7px}.tiles.sm .tile{width:44px;height:50px;font-size:26px;border-radius:13px}
+.tiles.xs{gap:6px}.tiles.xs .tile{width:38px;height:46px;font-size:22px;border-radius:12px}
+.zt{fill:rgba(255,230,128,.2);stroke:#FFE680;stroke-width:7;stroke-dasharray:16 12;cursor:pointer;animation:pulse2 1.2s infinite}
+.zt.hot{fill:rgba(255,230,128,.55);stroke:#fff}
+.tray.dim{opacity:.35;pointer-events:none}
+.tstep{font-size:14px;font-weight:800;color:#FFE680;text-align:center;margin:0;min-height:20px}
+#play.th-snowman::before{background:linear-gradient(rgba(20,10,50,.1),rgba(20,10,50,.3)),url(assets/bg-sled.jpg) center top/cover no-repeat}
+.snowbox{position:relative;width:170px;height:170px;flex:none}
+.snowbox img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}
+.snowbox .ghost{opacity:.25;filter:grayscale(1) brightness(1.7)}
+.snowbox .real{-webkit-clip-path:inset(100% 0 0 0);clip-path:inset(100% 0 0 0);transition:clip-path .6s ease,-webkit-clip-path .6s ease}
+.sline{min-height:56px;width:100%;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;background:rgba(255,255,255,.12);border:2px dashed rgba(255,255,255,.55);border-radius:16px;padding:8px}
+.sline span{background:#fff;color:#2B1440;border-radius:12px;padding:3px 10px;font:800 18px 'Baloo 2',system-ui,sans-serif;box-shadow:0 3px 0 #9FB6E8;animation:pop .4s cubic-bezier(.3,1.7,.5,1)}
+.sline.good span{background:linear-gradient(#7BF0A6,#2FB560);color:#fff;text-shadow:0 1px 0 #0E5A28;box-shadow:0 3px 0 #0E5A28}
+.sline em{font-style:normal;color:#8A7FA8;font-size:14px;font-weight:700}
+.balls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;width:100%}
+.ball{min-width:62px;height:60px;padding:0 14px;border-radius:30px;background:radial-gradient(circle at 35% 30%,#fff,#E6EEFF 58%,#B5CAF2);border:3px solid #fff;color:#2B1440;font:800 19px 'Baloo 2',system-ui,sans-serif;box-shadow:0 5px 0 #6E86C2;cursor:pointer}
+.ball.used{visibility:hidden}
+.ball.glow2{border-color:var(--gold);box-shadow:0 0 0 5px rgba(255,213,37,.4),0 5px 0 #6E86C2;animation:pulse2 1s infinite}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 /* cây thông */
 .cmd{width:100%;display:flex;align-items:center;gap:8px}
@@ -231,6 +266,13 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
 </style>
 </head>
 <body>
+<div id="boot" role="status" aria-live="polite">
+  <img class="blogo" src="logo-pec.png" alt="PEC">
+  <img id="bmasc" src="assets/mascot-hello.png" alt="">
+  <p class="bt g ol">Làng Giáng Sinh PEC</p>
+  <div class="bbar"><i id="bfill"></i></div>
+  <p class="bs" id="bstat">Đang mở cổng làng…</p>
+</div>
 <canvas id="snowfx" aria-hidden="true"></canvas>
 <div class="app">
   <!-- ===== LÀNG ===== -->
@@ -252,7 +294,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
       <div id="mapsvg"></div>
       <div class="sign"><img class="mascot" id="mascot" src="assets/mascot-hello.png" role="button" tabindex="0" alt="Bạn tuần lộc dẫn đường, chạm để nghe gợi ý">
         <div class="sc"><div class="bubble" id="bubble"></div><div class="cd"><img src="assets/ic-star.png" width="15" height="15" alt=""><span id="cdT"></span></div><div id="hello"></div><span id="sSk" hidden></span></div></div>
-      <p class="note">Bản chạy thử · 3 trạm Kids · xếp hạng dữ liệu mẫu</p>
+      <p class="note">Bản chạy thử · 4 trạm · xếp hạng dữ liệu mẫu</p>
     </div>
     <nav class="dock" id="dock">
       <button class="db g ol" id="qDaily"><span class="orb red"><svg class="scap" viewBox="0 0 50 18" aria-hidden="true"><path d="M3 13C7 4 17 1 25 1s18 3 22 12c-4 3-9 2-12-1-4 4-10 4-14 0-4 3-8 4-18 1z" fill="#fff"/></svg><img src="assets/ic-gift.png" alt=""><span class="dot" id="dDot">1</span></span>Hộp quà</button>
@@ -348,6 +390,21 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
 
 <script>
 (function(){
+/* ================= MÀN HÌNH CHỜ: tải trước hình cần cho bản đồ ================= */
+(function boot(){
+  const el=document.getElementById('boot');if(!el)return;
+  const list=['assets/bg-map.jpg','assets/mascot-hello.png','assets/ic-ticket.png','assets/ic-star.png','assets/ic-candy.png','assets/ic-gift.png','assets/ic-trophy.png','assets/ic-bag.png','assets/ic-sleigh.png']
+    .concat(['wrap','tree','sled','snowman','talk','letter','arena'].map(id=>'assets/st-'+id+'.png'));
+  const t0=Date.now();let n=0,ended=false;
+  const fill=document.getElementById('bfill'),stat=document.getElementById('bstat'),m=document.getElementById('bmasc');
+  if(m.complete&&m.naturalWidth)m.classList.add('on');else m.onload=()=>m.classList.add('on');
+  const msgs=['Đang mở cổng làng…','Đang treo đèn lồng…','Đang gói quà…','Sắp xong rồi!'];
+  function end(){if(ended)return;ended=true;fill.style.width='100%';setTimeout(()=>{el.classList.add('out');setTimeout(()=>{if(el.parentNode)el.parentNode.removeChild(el)},600)},Math.max(0,500-(Date.now()-t0)))}
+  function step(){n++;const k=n/list.length;fill.style.width=Math.max(4,Math.round(k*100))+'%';stat.textContent=msgs[Math.min(3,Math.floor(k*4))];if(n>=list.length)end()}
+  list.forEach(src=>{const im=new Image();im.onload=im.onerror=step;im.src=src});
+  setTimeout(end,9000);
+})();
+
 /* ================= KHO TỪ CẤP KIDS ================= */
 const WRAP_WORDS=[['star','⭐'],['tree','🎄'],['bell','🔔'],['gift','🎁'],['snow','❄️'],['sock','🧦'],['cake','🎂'],['candy','🍬'],['santa','🎅'],['moon','🌙'],['deer','🦌'],['cookie','🍪'],['milk','🥛'],['scarf','🧣'],['gloves','🧤'],['snowman','⛄'],['candle','🕯️'],['angel','👼']];
 const COLORS={red:'#E73236',blue:'#3D7BE0',yellow:'#FFD525',green:'#2E9E5B',pink:'#F27AB0',purple:'#8E5BD6',orange:'#F58A2B',white:'#F3F6FB'};
@@ -358,11 +415,34 @@ const TOPICS=[
  {k:'clothes',vi:'QUẦN ÁO',items:[['hat','👒'],['sock','🧦'],['scarf','🧣'],['gloves','🧤'],['coat','🧥'],['shoes','👟'],['dress','👗'],['shirt','👕']]},
  {k:'toys',vi:'ĐỒ CHƠI',items:[['ball','⚽'],['car','🚗'],['robot','🤖'],['teddy','🧸'],['train','🚂'],['drum','🥁'],['balloon','🎈'],['blocks','🧱']]}
 ];
+/* ================= KHO TỪ CẤP TUẦN LỘC VÀ ÔNG GIÀ NOEL ================= */
+// Bản nháp theo bảng "Kho từ Làng Giáng Sinh PEC", giáo viên duyệt xong sẽ cập nhật
+const WRAP_LV=[null,
+ [['reindeer','🦌','tuần lộc'],['chimney','🏠','ống khói'],['present','🎁','món quà'],['stocking','🧦','tất treo quà'],['ornament','🔴','đồ trang trí'],['wreath','💐','vòng hoa'],['sleigh','🛷','xe trượt tuyết'],['snowflake','❄️','bông tuyết'],['mittens','🧤','găng tay hở ngón'],['carol','🎶','bài hát mừng Noel'],['holiday','🏖️','kỳ nghỉ'],['winter','⛄','mùa đông'],['chocolate','🍫','sô-cô-la'],['fireplace','🔥','lò sưởi'],['gingerbread','🍪','bánh gừng'],['celebrate','🎉','ăn mừng'],['decorate','🎄','trang trí'],['family','👨‍👩‍👧','gia đình']],
+ [['tradition','','truyền thống'],['celebrate','','ăn mừng, kỷ niệm'],['generous','','hào phóng'],['decorate','','trang trí'],['festive','','mang không khí lễ hội'],['gratitude','','lòng biết ơn'],['volunteer','','tình nguyện'],['resolution','','quyết tâm (năm mới)'],['exchange','','trao đổi'],['atmosphere','','bầu không khí'],['charity','','từ thiện'],['anticipate','','mong chờ, dự đoán'],['reunion','','sự đoàn tụ'],['fireworks','','pháo hoa'],['kindness','','lòng tốt'],['memorable','','đáng nhớ']]];
+const TOPICS_LV=[TOPICS,
+ [{k:'jobs',vi:'NGHỀ NGHIỆP',items:[['doctor','🧑‍⚕️'],['teacher','🧑‍🏫'],['farmer','🧑‍🌾'],['pilot','🧑‍✈️'],['chef','🧑‍🍳'],['nurse','💉'],['firefighter','🚒'],['singer','🎤']]},
+  {k:'weather',vi:'THỜI TIẾT',items:[['sunny','☀️'],['rainy','🌧️'],['snowy','🌨️'],['windy','🌬️'],['cloudy','☁️'],['stormy','⛈️'],['foggy','🌫️'],['cold','🥶']]},
+  {k:'places',vi:'ĐỊA ĐIỂM',items:[['school','🏫'],['hospital','🏥'],['park','🌳'],['library','📚'],['zoo','🦁'],['museum','🏛️'],['bakery','🥐'],['cinema','🎬']]},
+  {k:'activities',vi:'HOẠT ĐỘNG',items:[['swim','🏊'],['dance','💃'],['sing','🎤'],['skate','⛸️'],['ski','⛷️'],['read','📖'],['draw','🎨'],['cook','🍳']]}],
+ [{k:'feelings',vi:'CẢM XÚC',items:[['excited',''],['grateful',''],['anxious',''],['cheerful',''],['lonely',''],['proud',''],['relaxed',''],['disappointed','']]},
+  {k:'past tense',vi:'ĐỘNG TỪ QUÁ KHỨ',items:[['went',''],['bought',''],['gave',''],['made',''],['sang',''],['wrote',''],['took',''],['brought','']]},
+  {k:'phrasal verbs',vi:'CỤM ĐỘNG TỪ',items:[['put up',''],['wrap up',''],['look forward to',''],['give away',''],['light up',''],['hang out',''],['stay up',''],['get together','']]},
+  {k:'travel',vi:'DU LỊCH',items:[['passport',''],['luggage',''],['airport',''],['souvenir',''],['destination',''],['journey',''],['ticket',''],['hotel','']]}]];
+// Trạm Đắp người tuyết: [câu, gợi ý]
+const SNOW=[
+ [['I like cake.','Con thích bánh ngọt.'],['It is snowing.','Trời đang có tuyết.'],['I love my family.','Con yêu gia đình con.'],['Thank you, Santa!','Cảm ơn ông già Noel!'],['I have a red hat.','Con có một cái mũ đỏ.'],['The tree is green.','Cây thông màu xanh.'],['I see a big snowman.','Con thấy một người tuyết to.']],
+ [['Santa lives at the North Pole.','Ông già Noel sống ở Bắc Cực.'],['The reindeer can fly in the sky.','Tuần lộc có thể bay trên trời.'],['I want a new bike for Christmas.','Con muốn một chiếc xe đạp mới dịp Noel.'],['We decorate the tree with lights.','Chúng mình trang trí cây bằng đèn.'],['My sister is making a snowman.','Chị em đang đắp người tuyết.'],['There are many presents under the tree.','Có nhiều quà dưới gốc cây.'],['Children hang stockings by the fireplace.','Trẻ em treo tất cạnh lò sưởi.'],['It is very cold and snowy today.','Hôm nay rất lạnh và có tuyết.'],['Mum is baking cookies in the kitchen.','Mẹ đang nướng bánh quy trong bếp.'],['He wrapped the gift with red paper.','Bạn ấy gói quà bằng giấy đỏ.'],['What do you want for Christmas?','Bạn muốn gì vào dịp Noel?'],['Where does Santa keep the presents?','Ông già Noel cất quà ở đâu?']],
+ [['If it snows tomorrow, we will build a snowman.','Câu điều kiện loại 1'],['She has been decorating the tree since morning.','Hiện tại hoàn thành tiếp diễn'],['The gift that you gave me was amazing.','Mệnh đề quan hệ'],['I wish I could spend Christmas in London.','Câu ước'],['We were singing carols when the lights went out.','Quá khứ tiếp diễn và quá khứ đơn'],['The cookies were baked by my grandmother.','Câu bị động'],['Neither my brother nor I have opened our presents.','Neither … nor'],['It was so cold that we stayed at home.','So … that']]];
+// Cây thông cấp Tuần Lộc, Ông Già Noel: nghe câu lệnh có vị trí
+const ZONES=[{say:'at the top of the tree',pt:[450,320]},{say:'on the left of the tree',pt:[268,585]},{say:'in the middle of the tree',pt:[450,525]},{say:'on the right of the tree',pt:[632,585]},{say:'at the bottom of the tree',pt:[450,770]}];
+const LVL=()=>S.profile&&S.profile.lv?S.profile.lv:0;
+
 const STATIONS=[
  {id:'wrap',name:'Xưởng gói quà',x:100,y:684,ly:55,open:1},
  {id:'tree',name:'Cây thông',x:262,y:604,ly:55,open:1},
  {id:'sled',name:'Xe trượt bắt quà',x:104,y:528,ly:55,open:1},
- {id:'snowman',name:'Đắp người tuyết',x:268,y:456,ly:54},
+ {id:'snowman',name:'Đắp người tuyết',x:268,y:456,ly:54,open:1},
  {id:'talk',name:'Nói với Ông già Noel',x:98,y:390,ly:54},
  {id:'letter',name:'Thư gửi Ông già Noel',x:262,y:318,ly:50},
  {id:'arena',name:'Đấu trường Bông tuyết',x:166,y:252,ly:46}
@@ -634,7 +714,7 @@ async function enter(s,m){
   cur=s;$('#home').style.display='none';$('#play').style.display='flex';$('#play').className='th-'+s.id;garland(s.id);
   $('#ptitle').textContent=s.name;window.scrollTo(0,0);
   if(cleanup){cleanup();cleanup=null}
-  ({wrap:Wrap,tree:Tree,sled:Sled})[s.id]();
+  ({wrap:Wrap,tree:Tree,sled:Sled,snowman:Snowman})[s.id]();
 }
 function goHome(){if(cleanup){cleanup();cleanup=null}tipI=0;stopSpeak();$('#play').style.display='none';$('#home').style.display='flex';$('#result').classList.remove('show');refresh();fitStationLabels()}
 function steps(n,at){$('#steps').innerHTML=Array.from({length:n},(_,i)=>`<i class="${i<at?'ok':i===at?'now':''}"></i>`).join('')}
@@ -679,17 +759,19 @@ function garland(theme){
 
 /* ================= TRẠM 1: XƯỞNG GÓI QUÀ ================= */
 function Wrap(){
-  const round=shuffle(WRAP_WORDS).slice(0,6);let idx=0,miss=0,got=0,anyHint=false;
+  const lv=LVL(),round=shuffle(lv?WRAP_LV[lv]:WRAP_WORDS).slice(0,6);let idx=0,miss=0,got=0,anyHint=false;
   const st=$('#stage');
   function show(){
     steps(6,idx);
-    const w=round[idx][0],p=round[idx][1];let slots=Array(w.length).fill(null);
+    const w=round[idx][0],p=round[idx][1],vi=round[idx][2]||'';let slots=Array(w.length).fill(null);
+    const sz=w.length>8?' xs':w.length>6?' sm':'';
+    const clue=lv===0?`<div class="pic">${p}</div>`:lv===1?`<div class="clue"><div class="pic">${p}</div><div class="vi">${esc(vi)}</div></div>`:`<div class="clue"><div class="vi big"><small>Từ tiếng Anh nghĩa là</small>${esc(vi)}</div></div>`;
     const tiles=shuffle(w.split('').map((c,i)=>({c,id:i})));
-    st.innerHTML=`<div class="tag" id="tg"><div class="pic">${p}</div><div class="wrap"></div><svg class="bow" viewBox="0 0 110 96"><path d="M55 48C30 6 2 14 10 40c5 16 28 14 45 8ZM55 48C80 6 108 14 100 40c-5 16-28 14-45 8Z" fill="#FFD525" stroke="#B87A00" stroke-width="3"/><path d="M50 52 36 92l14-6 6 10 4-44Z" fill="#FFC21A" stroke="#B87A00" stroke-width="3" stroke-linejoin="round"/><circle cx="55" cy="48" r="10" fill="#FFE680" stroke="#B87A00" stroke-width="3"/><path d="M22 28q8-8 18-2" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/></svg></div>
+    st.innerHTML=`<div class="tag" id="tg">${clue}<div class="wrap"></div><svg class="bow" viewBox="0 0 110 96"><path d="M55 48C30 6 2 14 10 40c5 16 28 14 45 8ZM55 48C80 6 108 14 100 40c-5 16-28 14-45 8Z" fill="#FFD525" stroke="#B87A00" stroke-width="3"/><path d="M50 52 36 92l14-6 6 10 4-44Z" fill="#FFC21A" stroke="#B87A00" stroke-width="3" stroke-linejoin="round"/><circle cx="55" cy="48" r="10" fill="#FFE680" stroke="#B87A00" stroke-width="3"/><path d="M22 28q8-8 18-2" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/></svg></div>
       <div class="tools">${speakerBtn(w)}<div><button class="round" id="hintB" aria-label="Gợi ý" style="width:56px;height:56px"><svg viewBox="0 0 24 24" style="width:28px;height:28px"><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z" fill="#FFE680" stroke="#3B1F2B" stroke-width="1.5"/><path d="M9.5 18.5h5M10.5 21h3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></button><div class="lab">Gợi ý</div></div></div>
-      <div class="slots" id="sl">${slots.map((_,i)=>`<button class="slot" data-s="${i}" aria-label="Ô chữ ${i+1}"></button>`).join('')}</div>
-      <div class="tiles" id="tl">${tiles.map((t,k)=>{const c=TILEC[k%6];return `<button class="tile" data-t="${t.id}" style="--a:${c[0]};--b:${c[1]};--c:${c[2]}">${t.c}</button>`}).join('')}</div>
-      <p class="hint">Nghe từ, rồi kéo hoặc chạm chữ cái vào ô để gói quà</p>`;
+      <div class="slots${sz}" id="sl">${slots.map((_,i)=>`<button class="slot" data-s="${i}" aria-label="Ô chữ ${i+1}"></button>`).join('')}</div>
+      <div class="tiles${sz}" id="tl">${tiles.map((t,k)=>{const c=TILEC[k%6];return `<button class="tile" data-t="${t.id}" style="--a:${c[0]};--b:${c[1]};--c:${c[2]}">${t.c}</button>`}).join('')}</div>
+      <p class="hint">${lv===2?'Đọc nghĩa tiếng Việt, ghép đúng từ tiếng Anh để gói quà':lv===1?'Nhìn hình và nghĩa, ghép chữ cái thành từ để gói quà':'Nghe từ, rồi kéo hoặc chạm chữ cái vào ô để gói quà'}</p>`;
     setTimeout(()=>speak(w),280);
     const sl=$('#sl'),tl=$('#tl');
     function paint(){
@@ -756,20 +838,50 @@ function ornSVG(type,color,size=52){
 }
 function Tree(){
   const SPOTS=[[370,330],[540,318],[262,560],[450,512],[640,560],[450,730]];
-  const cmds=[];const used={};
-  while(cmds.length<5){const t=pick(ORN_TYPES),c=pick(Object.keys(COLORS));const k=t+c;if(used[k])continue;used[k]=1;cmds.push({t,c})}
+  const lv=LVL(),cmds=[];const used={};
+  const zs=shuffle([0,1,2,3,4]);
+  while(cmds.length<5){const t=pick(ORN_TYPES),c=pick(Object.keys(COLORS));const k=t+c;if(used[k])continue;used[k]=1;cmds.push({t,c,z:zs[cmds.length]})}
   cmds.push({t:'star',c:'yellow'});
-  let idx=0,miss=0,earned=0,showTxt=false;const st=$('#stage');
+  let idx=0,miss=0,earned=0,showTxt=lv>0&&!canTTS,picked=false;const st=$('#stage');const inZone=[0,0,0,0,0];
   st.innerHTML=`<div class="cmd"><img class="face" id="tface" src="assets/mascot-think.png" alt=""><div class="bub" id="ctxt"></div>
       <div style="display:flex;flex-direction:column;gap:6px"><button class="round gold" id="sayB" aria-label="Nghe lại câu lệnh"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#7A3E00"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="#7A3E00" stroke-width="2.2" stroke-linecap="round"/></svg></button><button class="round" id="txtB" aria-label="Xem chữ"><svg viewBox="0 0 24 24"><text x="12" y="17" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="15" fill="#fff">Aa</text></svg></button></div></div>
-    <div class="treebox"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 900 990" width="900" height="990" id="tsv"><image href="assets/tree-big.png" xlink:href="assets/tree-big.png" width="900" height="990"/><g id="orns"></g></svg></div>
+    <div class="treebox"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 900 990" width="900" height="990" id="tsv"><image href="assets/tree-big.png" xlink:href="assets/tree-big.png" width="900" height="990"/><g id="orns"></g><g id="zones"></g></svg></div>
+    <p class="tstep" id="tstep"></p>
     <div class="tray" id="tray"></div>`;
   const txt=$('#ctxt');
-  const phrase=c=>c.t==='star'?'Put the yellow star on the top.':`Put the ${c.c} ${c.t} on the tree.`;
+  const TEEN=['Could you hang the {o} {z}, please?','Please place the {o} {z}.','Hang the {o} {z}.'];
+  const phrase=c=>{
+    if(c.t==='star')return lv===2?'Finally, place the yellow star on the very top.':'Put the yellow star on the top.';
+    if(lv===0)return `Put the ${c.c} ${c.t} on the tree.`;
+    const z=ZONES[c.z].say;
+    return lv===1?`Put the ${c.c} ${c.t} ${z}.`:TEEN[cmds.indexOf(c)%3].replace('{o}',c.c+' '+c.t).replace('{z}',z);
+  };
   function paintTxt(){const c=cmds[idx];if(!c)return;txt.textContent=showTxt?phrase(c):'Nghe kỹ rồi chọn đúng đồ trang trí nhé!';txt.classList.toggle('hid',!showTxt)}
   $('#txtB').onclick=()=>{showTxt=!showTxt;paintTxt()};
   $('#sayB').onclick=()=>{unlockAudio();speak(phrase(cmds[idx]))};
   let wrongHere=0;
+  function place(c,b){
+    earned+=wrongHere===0?15:(wrongHere===1?10:5);
+    ding();gain();if(b)confettiAt(b,16);
+    let pt,sz=132;
+    if(c.t==='star'){pt=[450,96];sz=190}
+    else if(lv===0)pt=SPOTS[idx];
+    else{const o=[[0,0],[-62,38],[62,38],[0,70]][inZone[c.z]++%4],q=ZONES[c.z].pt;pt=[q[0]+o[0],q[1]+o[1]]}
+    $('#tface').src='assets/mascot-happy.png';
+    $('#orns').insertAdjacentHTML('beforeend',`<g transform="translate(${pt[0]-sz/2} ${pt[1]-sz/2})">${c.t==='star'?`<circle class="glow" cx="${sz/2}" cy="${sz/2}" r="${sz*.55}" fill="#FFE680" opacity=".45"/>`:''}<g class="pop" style="transform-origin:${sz/2}px ${sz/2}px">${ornSVG(c.t,c.c,sz)}</g></g>`);
+    speak(c.t==='star'?'Wonderful!':'Great job!',.9);idx++;picked=false;$('#zones').innerHTML='';$('#tstep').textContent='';$('#tray').classList.remove('dim');
+    $('#tray').onclick=null;setTimeout(()=>{idx<6?(show(),setTimeout(()=>speak(phrase(cmds[idx])),200)):finish(earned+(miss===0?10:0),'Cây thông của bé đã lung linh rồi')},1100);
+  }
+  function askZone(c){
+    picked=true;$('#tray').classList.add('dim');$('#tface').src='assets/mascot-think.png';
+    $('#tstep').textContent='Đúng rồi! Giờ chạm vào chỗ treo trên cây';
+    $('#zones').innerHTML=ZONES.map((z,i)=>`<circle class="zt" data-z="${i}" cx="${z.pt[0]}" cy="${z.pt[1]}" r="82"/>`).join('');
+    let wrongZ=0;
+    $('#zones').onclick=e=>{const t=e.target;if(!t||!t.getAttribute||t.getAttribute('data-z')==null)return;unlockAudio();const zi=+t.getAttribute('data-z');
+      if(zi===c.z){$('#zones').onclick=null;place(c,null)}
+      else{miss++;wrongHere++;wrongZ++;buzz();$('#tface').src='assets/mascot-oops.png';speak('Try again!',.9);
+        if(wrongZ>=2){const h=$('#zones').querySelector('[data-z="'+c.z+'"]');if(h)h.setAttribute('class','zt hot');if(!showTxt){showTxt=true;paintTxt()}}}};
+  }
   function show(){
     steps(6,idx);wrongHere=0;const c=cmds[idx];paintTxt();$('#tface').src='assets/mascot-think.png';
     let opts=[c];const add=o=>{if(!opts.some(x=>x.t===o.t&&x.c===o.c))opts.push(o)};
@@ -784,13 +896,11 @@ function Tree(){
     opts=shuffle(opts);
     $('#tray').innerHTML=opts.map((o,i)=>`<button class="orn" data-o="${i}" aria-label="${o.c} ${o.t}">${ornImg(o.t,o.c)}</button>`).join('');
     $('#tray').onclick=e=>{const b=e.target.closest('.orn');if(!b)return;unlockAudio();const o=opts[+b.dataset.o];
+      if(picked)return;
       if(o.t===c.t&&o.c===c.c){
-        // Đúng quy tắc Tờ trình BGĐ: 15 điểm mỗi lần chọn đúng ngay (giảm nếu chọn sai nhiều lần), +10 thưởng nếu không sai lần nào
-        earned+=wrongHere===0?15:(wrongHere===1?10:5);
-        ding();gain();confettiAt(b,16);const pt=c.t==='star'?[450,96]:SPOTS[idx];const sz=c.t==='star'?190:132;$('#tface').src='assets/mascot-happy.png';
-        $('#orns').insertAdjacentHTML('beforeend',`<g transform="translate(${pt[0]-sz/2} ${pt[1]-sz/2})">${c.t==='star'?`<circle class="glow" cx="${sz/2}" cy="${sz/2}" r="${sz*.55}" fill="#FFE680" opacity=".45"/>`:''}<g class="pop" style="transform-origin:${sz/2}px ${sz/2}px">${ornSVG(c.t,c.c,sz)}</g></g>`);
-        speak(c.t==='star'?'Wonderful!':'Great job!',.9);idx++;
-        $('#tray').onclick=null;setTimeout(()=>{idx<6?(show(),setTimeout(()=>speak(phrase(cmds[idx])),200)):finish(earned+(miss===0?10:0),'Cây thông của bé đã lung linh rồi')},1100);
+        // 15 điểm mỗi món làm đúng ngay, 10 nếu sai 1 lần, 5 nếu sai từ 2 lần; +10 nếu cả lượt không sai
+        if(lv>0&&c.t!=='star'){tone(880,.08,'triangle',.06);confettiAt(b,10);askZone(c);return}
+        place(c,b);
       }else{
         miss++;wrongHere++;buzz();$('#tface').src='assets/mascot-oops.png';b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),450);speak('Try again!',.9);
         if(wrongHere>=2){const k=opts.findIndex(o=>o.t===c.t&&o.c===c.c);if(k>=0)$('#tray').children[k].classList.add('glow2');if(!showTxt){showTxt=true;paintTxt()}}
@@ -805,7 +915,7 @@ const IMG={};
 const ok=im=>im&&im.complete&&im.naturalWidth>0;
 
 function Sled(){
-  const topic=pick(TOPICS),others=TOPICS.filter(t=>t!==topic).reduce((acc,t)=>acc.concat(t.items),[]).filter(it=>!topic.items.some(x=>x[0]===it[0]));
+  const TP=TOPICS_LV[LVL()],topic=pick(TP),others=TP.filter(t=>t!==topic).reduce((acc,t)=>acc.concat(t.items),[]).filter(it=>!topic.items.some(x=>x[0]===it[0]));
   const st=$('#stage');$('#steps').innerHTML='';
   st.innerHTML=`<div class="topic">Lái xe trượt, chỉ bắt quà có<b>${topic.vi} · ${topic.k.toUpperCase()}</b></div>
     <div class="hud2 g ol"><span class="hearts" id="hp"></span><span id="sc">Bắt được: 0</span><span id="tm">40s</span></div>
@@ -865,11 +975,21 @@ function Sled(){
     const im=IMG['fall-gift-'+it.col+'.png'];
     if(ok(im))ctx.drawImage(im,-41,-41,82,82);else{ctx.fillStyle='#E73236';ctx.fillRect(-32,-30,64,60)}
     ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillStyle='#fff';ctx.strokeStyle='#3B1F2B';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-17,15,0,7);ctx.fill();ctx.stroke();
-    ctx.fillStyle='#000';ctx.font='20px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif';
-    ctx.fillText(it.p,0,-16);
-    ctx.font='800 13.5px "Baloo 2",sans-serif';ctx.fillStyle='#2B1440';
-    ctx.fillText(it.w,0,22);
+    const fit=(t,fs,min)=>{while(fs>min){ctx.font=`800 ${fs}px "Baloo 2",sans-serif`;if(ctx.measureText(t).width<=58)break;fs-=.5}ctx.font=`800 ${fs}px "Baloo 2",sans-serif`};
+    if(it.p){
+      ctx.fillStyle='#fff';ctx.strokeStyle='#3B1F2B';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-17,15,0,7);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#000';ctx.font='20px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif';
+      ctx.fillText(it.p,0,-16);
+      fit(it.w,13.5,9);ctx.fillStyle='#2B1440';ctx.fillText(it.w,0,22);
+    }else{
+      // Cấp Ông Già Noel: chỉ có chữ, dài thì xuống 2 dòng
+      ctx.fillStyle='#2B1440';ctx.font='800 15px "Baloo 2",sans-serif';
+      const sp=it.w.indexOf(' ');
+      if(ctx.measureText(it.w).width>58&&sp>0){
+        const mid=it.w.length/2;let k=sp,j=sp;for(let q=0;q<it.w.length;q++)if(it.w[q]===' '&&Math.abs(q-mid)<Math.abs(k-mid))k=q;
+        const a=it.w.slice(0,k),b2=it.w.slice(k+1);fit(a.length>b2.length?a:b2,14,9);ctx.fillText(a,0,9);ctx.fillText(b2,0,24);
+      }else{fit(it.w,15,9);ctx.fillText(it.w,0,16)}
+    }
     ctx.restore();
   }
   function drawSled(){
@@ -904,6 +1024,49 @@ function Sled(){
   cleanup=()=>{G.run=false;cancelAnimationFrame(raf);cancelAnimationFrame(roRaf);if(ro)ro.disconnect();else removeEventListener('resize',onResize);removeEventListener('keydown',key)};
 }
 
+/* ================= TRẠM 4: ĐẮP NGƯỜI TUYẾT ================= */
+function Snowman(){
+  const lv=LVL(),round=shuffle(SNOW[lv]).slice(0,5);let idx=0,miss=0,earned=0;
+  const st=$('#stage');
+  st.innerHTML=`<div class="snowbox"><img class="ghost" src="assets/st-snowman.png" alt=""><img class="real" id="sreal" src="assets/st-snowman.png" alt="Người tuyết"></div>
+    <div class="cmd"><img class="face" id="sface" src="assets/mascot-think.png" alt=""><div class="bub" id="shint"></div>${lv<2?speakerBtn(''):''}</div>
+    <div class="sline" id="sline"></div>
+    <div class="balls" id="balls"></div>
+    <p class="hint">Chạm các quả cầu tuyết theo đúng thứ tự để xếp thành câu</p>`;
+  const reveal=f=>{const v=Math.round(100-f*100)+'%';const r=$('#sreal');r.style.clipPath=r.style.webkitClipPath=`inset(${v} 0 0 0)`};
+  reveal(0);
+  function show(){
+    steps(5,idx);const sen=round[idx][0],hint=round[idx][1];
+    const end=/[.?!]$/.test(sen)?sen.slice(-1):'';const body=end?sen.slice(0,-1):sen;
+    const toks=body.split(' ');
+    const shown=toks.map((t,i)=>lv===2&&i===0&&t!=='I'&&!/^(London|Christmas|Santa)$/.test(t)?t.toLowerCase():t);
+    let pos=0,wrongHere=0,wrongNow=0;
+    $('#shint').textContent=(lv===2?'Gợi ý: ':'')+hint;$('#sface').src='assets/mascot-think.png';
+    const sl=$('#sline');sl.className='sline';sl.innerHTML='<em>Câu của bé sẽ hiện ở đây</em>';
+    const order=shuffle(shown.map((t,i)=>({t,i})));
+    $('#balls').innerHTML=order.map((o,k)=>`<button class="ball" data-k="${k}">${esc(o.t)}</button>`).join('');
+    const say=st.querySelector('[data-say]');if(say)say.onclick=()=>{unlockAudio();speak(sen)};
+    $('#balls').onclick=e=>{const b=e.target.closest('.ball');if(!b||b.classList.contains('used'))return;unlockAudio();
+      const o=order[+b.dataset.k];
+      if(o.t.toLowerCase()===shown[pos].toLowerCase()){
+        if(pos===0)sl.innerHTML='';
+        b.classList.add('used');b.classList.remove('glow2');sl.insertAdjacentHTML('beforeend',`<span>${esc(o.t)}${pos===toks.length-1?end:''}</span>`);
+        tone(660+pos*60,.09,'triangle',.06);pos++;wrongNow=0;
+        $$('.ball.glow2').forEach(x=>x.classList.remove('glow2'));
+        reveal((idx+pos/toks.length)/5);
+        if(pos===toks.length){
+          $('#balls').onclick=null;sl.classList.add('good');earned+=wrongHere===0?20:wrongHere===1?15:10;
+          ding();gain();speak(sen);$('#sface').src='assets/mascot-happy.png';confettiAt(sl,22);idx++;
+          setTimeout(()=>{idx<5?show():finish(earned,`Bé đã xếp đúng ${idx}/5 câu và đắp xong người tuyết`)},1700);
+        }
+      }else{
+        miss++;wrongHere++;wrongNow++;buzz();b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),450);$('#sface').src='assets/mascot-oops.png';
+        if(wrongNow>=2){const k=order.findIndex((x,j)=>x.t.toLowerCase()===shown[pos].toLowerCase()&&!$('#balls').children[j].classList.contains('used'));if(k>=0)$('#balls').children[k].classList.add('glow2')}
+      }};
+  }
+  show();
+}
+
 /* ================= ĐĂNG KÝ ================= */
 function openReg(msg){
   $('#regSub').textContent=msg||'Để lưu điểm, nhận kẹo gậy, lên bảng xếp hạng và đổi quà tại cơ sở PEC';
@@ -924,15 +1087,13 @@ $('#regF').addEventListener('submit',e=>{e.preventDefault();
     api('register',{name,lv:+$('#fLv').value,school:$('#fSchool').value.trim(),branch:$('#fBr').value,phone:$('#fPhone').value,ref:$('#fRef').value.trim().toUpperCase(),consent:true})
     .then(r=>{applyState(r.state,r.token);$('#reg').classList.remove('show');jingle();
       toast(`Chào ${name}! Mã của bé là ${S.profile.code}, bố mẹ giữ lại để vào trên máy khác`);
-      if(r.msg)setTimeout(()=>toast(r.msg),3000);
-      if(S.profile.lv!==0)setTimeout(()=>toast('Trạm cấp Tuần Lộc và Ông Già Noel mở từ 14/12, bé chơi trạm Kids trước nhé'),r.msg?6000:3200)})
+      if(r.msg)setTimeout(()=>toast(r.msg),3000);})
     .catch(err=>toast(err.message)).then(()=>{btn.disabled=false});
     return;
   }
   S.profile={name,lv:+$('#fLv').value,school:$('#fSchool').value.trim()||'Chưa nhập trường',branch:$('#fBr').value};
   ensureDay();save();refresh();$('#reg').classList.remove('show');jingle();
   toast(`Chào ${name}! Hôm nay bé có ${S.day.tk} vé tính điểm`);
-  if(S.profile.lv!==0)setTimeout(()=>toast('Bản chạy thử mới có trạm cấp Kids, bé chơi thử trước nhé'),2600);
 });
 
 /* ================= BẢNG XẾP HẠNG (dữ liệu mẫu) ================= */
@@ -1016,7 +1177,7 @@ $('.mute').onclick=()=>{unlockAudio();S.mute=!S.mute;if(S.mute)stopSpeak();save(
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!b.onclick){unlockAudio();speak(b.dataset.say)}});
 ensureDay();drawMap();countdown();refresh();
 fetch('/api/ping',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.ok)return;
-  SRV=true;document.body.classList.add('srv');$('.note').textContent='3 trạm Kids mở trước · các trạm khác mở dần từ 14/12';
+  SRV=true;document.body.classList.add('srv');$('.note').textContent='4 trạm mở trước · các trạm khác mở dần từ 14/12';
   if(S.profile&&!S.profile.token){S.profile=null;S.codes=[];S.candy=0;S.days={};S.day=null;S.zalo=false;ensureDay();save()}
   refresh();sync()}).catch(()=>{});
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync()});
