@@ -5,14 +5,11 @@ import CFG from './config.json';
 
 const LV_KEYS = ['kids', 'junior', 'teen'];
 const Q_MS = 10000, REVEAL_MS = 3200, INTRO_MS = 4500, GRACE_MS = 600;
-const BOT_NAMES = ['Minh Khôi', 'Bảo Châu', 'Gia Huy', 'An Nhiên', 'Đức Anh', 'Thảo Nhi', 'Quang Hải', 'Ngọc Diệp', 'Hoàng Bách', 'Khánh Linh', 'Phương Thảo', 'Đăng Khoa', 'Hà My', 'Thiện Nhân', 'Bảo Ngọc', 'Trâm Anh'];
-const LANE_ORDER = [2, 1, 3, 0, 4]; // bé vào trước đứng làn giữa
+const fromB64u = s => { const b = atob(s.replace(/-/g, '+').replace(/_/g, '/')); return new TextDecoder().decode(Uint8Array.from(b, ch => ch.charCodeAt(0))); };
 const R = CFG.matchRules.scoring;
 
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = a => a[Math.floor(Math.random() * a.length)];
-const campusById = id => CFG.campuses.find(c => c.id === id) || null;
-const campusByName = n => CFG.campuses.find(c => c.name === n) || null;
 const avatarById = id => CFG.zodiacAvatars.find(a => a.id === id) || null;
 const speedBonus = ms => (ms <= R.fullSpeedWindowMs ? R.maxSpeedBonusPoints : Math.max(0, Math.round((R.maxSpeedBonusPoints * (10000 - ms)) / 8500)));
 const clean = (t, n) => String(t ?? '').replace(/[\u0000-\u001f\u007f<>]/g, '').trim().slice(0, n);
@@ -29,14 +26,27 @@ export class ArenaRoom {
   resetRoom() {
     this.timers.forEach(clearTimeout); this.timers = [];
     this.phase = 'lobby'; // lobby | intro | question | reveal | finished
-    this.a = this.a || null; this.b = this.b || null; this.lv = this.lv ?? 0;
     this.teams = { A: Array(5).fill(null), B: Array(5).fill(null) };
+    if (this.match) for (const T of ['A', 'B']) (T === 'A' ? this.match.a : this.match.b).kids.forEach((k, l) => {
+      this.teams[T][l] = { human: true, pid: String(k.pid), kidName: k.name, name: k.name, branch: k.branch, lv: k.lv, av: 'mao', conn: null, ...this.freshStats() };
+    });
     this.round = 0; this.rounds = []; this.scoreA = 0; this.scoreB = 0;
     this.laneBalance = [50, 50, 50, 50, 50];
     this.cheers = { A: 0, B: 0 };
     this.lastReveal = null; this.final = null;
-    // xếp lại các bé đang kết nối vào đội theo cơ sở
+    // các bé đang kết nối ngồi lại đúng chỗ đã bốc thăm
     for (const c of this.conns) if (c.role === 'player') { c.slot = null; this.seat(c); }
+  }
+
+  // danh sách trận do trang game đọc từ bảng bốc thăm (D1) gửi kèm mỗi kết nối
+  loadMatch(raw) {
+    if (this.match || !raw) return;
+    let m; try { m = JSON.parse(fromB64u(raw)); } catch (e) { return; }
+    if (!m || !m.a || !m.b || !Array.isArray(m.a.kids) || !Array.isArray(m.b.kids) || m.a.kids.length !== 5 || m.b.kids.length !== 5) return;
+    this.match = m;
+    this.a = m.a.team; this.b = m.b.team;
+    this.laneLv = m.a.kids.map((k, l) => Math.max(0, Math.min(2, Math.min(+k.lv || 0, +m.b.kids[l].lv || 0))));
+    this.resetRoom();
   }
 
   later(fn, ms) { const id = setTimeout(() => { try { fn(); } catch (e) { console.error(e && e.stack || e); } }, ms); this.timers.push(id); return id; }
@@ -55,6 +65,8 @@ export class ArenaRoom {
       branch: decodeURIComponent(req.headers.get('X-Branch') || ''),
       av: 'mao', slot: null, cheerAt: [], msgAt: [],
     };
+    this.loadMatch(req.headers.get('X-Match'));
+    c.seat = req.headers.get('X-Team') ? { team: req.headers.get('X-Team'), lane: +req.headers.get('X-Lane') } : null;
     this.conns.add(c);
     server.addEventListener('message', e => this.onMessage(c, e.data));
     const gone = () => this.onClose(c);
@@ -72,11 +84,8 @@ export class ArenaRoom {
   onOpen(c) {
     if (c.role === 'player') {
       // vào lại (mất mạng rồi kết nối lại): giữ chỗ và điểm cũ
-      for (const T of ['A', 'B']) this.teams[T].forEach((p, lane) => {
-        if (p && p.pid && p.pid === c.pid) { p.conn = c; c.slot = { team: T, lane }; c.av = p.av; }
-      });
       for (const o of this.conns) if (o !== c && o.role === 'player' && o.pid === c.pid) { this.send(o, { t: 'err', msg: 'Bé đã vào phòng trên máy khác' }); try { o.ws.close(4000, 'replaced'); } catch (e) {} this.conns.delete(o); }
-      if (!c.slot) this.seat(c);
+      this.seat(c);
     }
     this.send(c, { t: 'hello', role: c.role, you: c.slot, room: this.publicState() });
     if (this.phase !== 'lobby') this.catchUp(c);
@@ -86,10 +95,7 @@ export class ArenaRoom {
   onClose(c) {
     if (!this.conns.has(c)) return;
     this.conns.delete(c);
-    if (c.role === 'player' && c.slot && this.phase === 'lobby') {
-      const p = this.teams[c.slot.team][c.slot.lane];
-      if (p && p.conn === c) this.teams[c.slot.team][c.slot.lane] = null;
-    } else if (c.slot) {
+    if (c.slot) {
       const p = this.teams[c.slot.team][c.slot.lane];
       if (p && p.conn === c) p.conn = null; // đang thi: giữ chỗ, coi như chưa trả lời
     }
@@ -97,15 +103,13 @@ export class ArenaRoom {
   }
 
   seat(c) {
-    if (!this.a || !this.b) { this.send(c, { t: 'info', msg: 'Đang chờ MC chọn 2 cơ sở thi đấu' }); return; }
-    if (this.phase !== 'lobby') { this.send(c, { t: 'info', msg: 'Trận đang diễn ra, bé xem cùng khán giả nhé' }); return; }
-    const camp = campusByName(c.branch);
-    const T = camp && camp.id === this.a ? 'A' : camp && camp.id === this.b ? 'B' : null;
-    if (!T) { this.send(c, { t: 'info', msg: `Trận này dành cho PEC ${campusById(this.a).name} và PEC ${campusById(this.b).name}. Bé ở lại cổ vũ nhé!` }); return; }
-    const lane = LANE_ORDER.find(l => !this.teams[T][l]);
-    if (lane === undefined) { this.send(c, { t: 'info', msg: 'Đội của bé đã đủ 5 bạn, bé ở lại cổ vũ nhé!' }); return; }
-    this.teams[T][lane] = { human: true, pid: c.pid, name: c.name, av: c.av, conn: c, ...this.freshStats() };
-    c.slot = { team: T, lane };
+    if (!this.match) { this.send(c, { t: 'info', msg: 'Phòng chưa có danh sách thi đấu' }); return; }
+    const st = c.seat, p = st && ['A', 'B'].includes(st.team) && this.teams[st.team][st.lane];
+    if (!p || p.pid !== String(c.pid)) { this.send(c, { t: 'info', msg: 'Bé không có tên trong trận này, bé ở lại cổ vũ nhé!' }); return; }
+    p.conn = c; c.slot = { team: st.team, lane: st.lane };
+    // bé vắng lúc bắt đầu (bạn máy thi thay) vào kịp thì thi tiếp các lượt còn lại
+    if (!p.human) { p.human = true; p.name = p.kidName; }
+    if (this.phase === 'lobby') p.av = c.av = p.av || c.av; else c.av = p.av;
     this.send(c, { t: 'seat', you: c.slot });
   }
 
@@ -126,7 +130,6 @@ export class ArenaRoom {
       if (m.t === 'skill') return this.onSkill(c, m);
     }
     if (c.role === 'host') {
-      if (m.t === 'setup') return this.onSetup(c, m);
       if (m.t === 'start') return this.onStart(c);
       if (m.t === 'frost') return this.onHostFrost();
       if (m.t === 'confetti') return this.broadcast({ t: 'cheer', side: 'all', emoji: '🎉', burst: true });
@@ -152,23 +155,13 @@ export class ArenaRoom {
     this.pushRoom();
   }
 
-  onSetup(c, m) {
-    if (this.phase !== 'lobby' && this.phase !== 'finished') return this.send(c, { t: 'err', msg: 'Trận đang diễn ra, bấm Làm lại phòng trước' });
-    if (!campusById(m.a) || !campusById(m.b) || m.a === m.b) return this.send(c, { t: 'err', msg: 'Chọn 2 cơ sở khác nhau' });
-    this.a = m.a; this.b = m.b; this.lv = [0, 1, 2].includes(+m.lv) ? +m.lv : 0;
-    this.resetRoom();
-    this.broadcast({ t: 'reset' });
-    this.pushRoom();
-  }
-
   onStart(c) {
     if (this.phase !== 'lobby') return this.send(c, { t: 'err', msg: 'Phòng không ở trạng thái chờ' });
-    if (!this.a || !this.b) return this.send(c, { t: 'err', msg: 'Chưa chọn 2 cơ sở' });
-    const used = new Set();
-    for (const T of ['A', 'B']) this.teams[T].forEach(p => p && used.add(p.name));
-    const names = shuffle(BOT_NAMES.filter(n => !used.has(n)));
+    if (!this.match) return this.send(c, { t: 'err', msg: 'Phòng chưa có danh sách thi đấu' });
+    // bé vắng mặt: bạn máy thi thay, bé vào kịp thì thi tiếp
     for (const T of ['A', 'B']) for (let l = 0; l < 5; l++) {
-      if (!this.teams[T][l]) this.teams[T][l] = { human: false, name: names.pop() + ' 🤖', av: pick(CFG.zodiacAvatars).id, acc: (T === 'A' ? 0.7 : 0.68) + Math.random() * 0.14, ...this.freshStats() };
+      const p = this.teams[T][l];
+      if (!p.conn) { p.human = false; p.name = p.kidName + ' 🤖'; p.acc = 0.66 + Math.random() * 0.14; if (p.av === 'mao') p.av = pick(CFG.zodiacAvatars).id; }
     }
     this.buildRounds();
     this.phase = 'intro';
@@ -183,16 +176,19 @@ export class ArenaRoom {
 
   /* ---------- trận đấu ---------- */
   buildRounds() {
-    const pool = CFG.questionBank[LV_KEYS[this.lv]] || CFG.questionBank.kids;
-    const used = {};
+    // mỗi cặp đấu một bộ câu riêng, theo cấp thấp hơn của 2 bạn trong cặp; không lặp câu trong cùng làn
+    const usedLane = [{}, {}, {}, {}, {}];
     this.rounds = [];
     for (let r = 1; r <= 10; r++) {
       const tier = r <= 3 ? 1 : r <= 7 ? 2 : 3;
-      let cand = shuffle(pool.filter(q => q.tier === tier && !used[q.id]));
-      if (cand.length < 5) cand = cand.concat(shuffle(pool.filter(q => !used[q.id] && !cand.includes(q))));
-      if (cand.length < 5) { for (const k in used) delete used[k]; cand = cand.concat(shuffle(pool.filter(q => !cand.includes(q)))); }
-      const laneQs = cand.slice(0, 5);
-      laneQs.forEach(q => { used[q.id] = 1; });
+      const usedRound = {}, laneQs = [];
+      for (let l = 0; l < 5; l++) {
+        const pool = CFG.questionBank[LV_KEYS[this.laneLv[l]]] || CFG.questionBank.kids;
+        const tries = [q => q.tier === tier && !usedLane[l][q.id] && !usedRound[q.id], q => !usedLane[l][q.id] && !usedRound[q.id], q => !usedLane[l][q.id], () => true];
+        let q = null;
+        for (const f of tries) { const c = pool.filter(f); if (c.length) { q = pick(c); break; } }
+        usedLane[l][q.id] = 1; usedRound[q.id] = 1; laneQs.push(q);
+      }
       this.rounds.push({ round: r, mult: r >= 9 ? 2 : 1, laneQs });
     }
   }
@@ -259,7 +255,7 @@ export class ArenaRoom {
     const p = this.teams[c.slot.team][c.slot.lane];
     const k = m.k;
     if (!p || !['shield', 'double', 'snowball'].includes(k) || p.skills[k]) return;
-    if (k === 'snowball' && this.lv < 1) return;
+    if (k === 'snowball' && this.laneLv[c.slot.lane] < 1) return;
     p.skills[k] = true;
     if (k === 'snowball') {
       const opp = this.teams[c.slot.team === 'A' ? 'B' : 'A'][c.slot.lane];
@@ -298,7 +294,7 @@ export class ArenaRoom {
       if (pa.streak > 0 && pa.streak % 3 === 0) { pA += R.streak3BonusTeamPoints; out.A.combo = true; }
       if (pb.streak > 0 && pb.streak % 3 === 0) { pB += R.streak3BonusTeamPoints; out.B.combo = true; }
       // bạn máy dùng Bão Tuyết lên bé thật một lần khi đang chuỗi thắng (cấp Tuần Lộc trở lên)
-      for (const [p, o] of [[pa, pb], [pb, pa]]) if (!p.human && o.human && this.lv >= 1 && p.streak >= 2 && !p.skills.snowball && r < 9) { p.skills.snowball = true; o.frostNext = true; }
+      for (const [p, o] of [[pa, pb], [pb, pa]]) if (!p.human && o.human && this.laneLv[l] >= 1 && p.streak >= 2 && !p.skills.snowball && r < 9) { p.skills.snowball = true; o.frostNext = true; }
       pa.score += pA; pb.score += pB; dA += pA; dB += pB;
       pa.act = pA > pB ? 'act-win' : pA < pB ? 'act-fall' : ''; pb.act = pB > pA ? 'act-win' : pB < pA ? 'act-fall' : '';
       pa.tag = pA > 0 ? `+${pA}đ` : '0đ'; pb.tag = pB > 0 ? `+${pB}đ` : '0đ';
@@ -315,7 +311,7 @@ export class ArenaRoom {
   finish() {
     this.phase = 'finished';
     const all = [];
-    for (const T of ['A', 'B']) this.teams[T].forEach((p, l) => all.push({ team: T, lane: l, name: p.name, av: p.av, human: p.human, score: p.score, wins: p.wins }));
+    for (const T of ['A', 'B']) this.teams[T].forEach((p, l) => all.push({ team: T, lane: l, name: p.name, av: p.av, human: p.human, branch: p.branch, score: p.score, wins: p.wins }));
     all.sort((x, y) => y.score - x.score);
     let winner = this.scoreA > this.scoreB ? 'A' : this.scoreB > this.scoreA ? 'B' : null;
     if (!winner) { const msA = this.teams.A.reduce((s, p) => s + p.correctMs, 0), msB = this.teams.B.reduce((s, p) => s + p.correctMs, 0); winner = msA <= msB ? 'A' : 'B'; }
@@ -326,14 +322,14 @@ export class ArenaRoom {
 
   /* ---------- trạng thái gửi đi ---------- */
   matchInfo() {
-    const pub = p => ({ name: p.name, av: p.av, human: p.human });
-    return { a: this.a, b: this.b, lv: this.lv, teamA: this.teams.A.map(pub), teamB: this.teams.B.map(pub) };
+    const pub = p => ({ name: p.name, av: p.av, human: p.human, branch: p.branch });
+    return { a: this.a, b: this.b, laneLv: this.laneLv, label: this.match.label, teamA: this.teams.A.map(pub), teamB: this.teams.B.map(pub) };
   }
 
   publicState() {
-    const slot = p => p ? { name: p.name, av: p.av, human: p.human, online: !!(p.conn || !p.human) } : null;
+    const slot = p => p ? { name: p.name, av: p.av, human: p.human, branch: p.branch, online: !!p.conn } : null;
     let viewers = 0; for (const c of this.conns) if (c.role !== 'player' || !c.slot) viewers++;
-    return { phase: this.phase, a: this.a, b: this.b, lv: this.lv, round: this.round, scoreA: this.scoreA, scoreB: this.scoreB, teamA: this.teams.A.map(slot), teamB: this.teams.B.map(slot), viewers, cheers: this.cheers };
+    return { phase: this.phase, a: this.a || null, b: this.b || null, label: this.match ? this.match.label : '', at: this.match ? this.match.at : '', laneLv: this.laneLv || [0, 0, 0, 0, 0], round: this.round, scoreA: this.scoreA, scoreB: this.scoreB, teamA: this.teams.A.map(slot), teamB: this.teams.B.map(slot), viewers, cheers: this.cheers };
   }
 
   pushRoom() { this.broadcast({ t: 'room', room: this.publicState() }); }
@@ -341,8 +337,8 @@ export class ArenaRoom {
   // ảnh chụp trạng thái cho màn sân khấu và khán giả (giữ định dạng MATCH_SNAPSHOT cũ)
   snapshot(phase) {
     const rd = this.rounds[this.round - 1];
-    const m = p => ({ name: p ? p.name : '', av: p ? (avatarById(p.av) || CFG.zodiacAvatars[0]).file : '', zodiac: p ? (avatarById(p.av) || CFG.zodiacAvatars[0]).zodiac : '', score: p ? p.score : 0, streak: p ? p.streak : 0, lastAct: p ? p.act : '', lastTag: p ? p.tag : '', human: p ? p.human : false });
-    return { type: 'MATCH_SNAPSHOT', phase, round: this.round || 0, mult: rd ? rd.mult : 1, myCamp: campusById(this.a), oppCamp: campusById(this.b), teamAScore: this.scoreA, teamBScore: this.scoreB, laneBalance: this.laneBalance, laneQs: rd ? rd.laneQs.map(q => q.q) : [], teamA: this.teams.A.map(m), teamB: this.teams.B.map(m), final: this.final };
+    const m = p => ({ branch: p ? p.branch : '', name: p ? p.name : '', av: p ? (avatarById(p.av) || CFG.zodiacAvatars[0]).file : '', zodiac: p ? (avatarById(p.av) || CFG.zodiacAvatars[0]).zodiac : '', score: p ? p.score : 0, streak: p ? p.streak : 0, lastAct: p ? p.act : '', lastTag: p ? p.tag : '', human: p ? p.human : false });
+    return { type: 'MATCH_SNAPSHOT', phase, round: this.round || 0, mult: rd ? rd.mult : 1, myCamp: this.a, oppCamp: this.b, teamAScore: this.scoreA, teamBScore: this.scoreB, laneBalance: this.laneBalance, laneQs: rd ? rd.laneQs.map(q => q.q) : [], teamA: this.teams.A.map(m), teamB: this.teams.B.map(m), final: this.final };
   }
 
   pushSnapshot(phase) {

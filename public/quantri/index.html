@@ -27,6 +27,11 @@ input{font:inherit;color:var(--tx);background:#211C38;border:1px solid var(--lin
 button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;color:#fff;background:var(--grn)}
 .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
 .err{color:#F29A9C}
+select{font:inherit;color:var(--tx);background:#211C38;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.ghost{background:#5B4BA0}.warn{background:#9C3B47}
+.mt{margin:14px 0 6px;font-weight:700;color:var(--gold)}
+.mt small{color:var(--mu);font-weight:400}
+td.vs{text-align:center;color:var(--mu)}
 </style>
 </head>
 <body>
@@ -37,6 +42,16 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
   <div id="out" hidden>
     <div class="bar"><button id="csv">Tải danh sách phụ huynh (CSV)</button><button id="re" style="background:#5B4BA0">Làm mới</button><span class="err" id="e2"></span></div>
     <div class="kpi" id="kpi"></div>
+    <div class="card" id="arena"><h2>Đấu trường 5vs5 · chốt top và bốc thăm đội</h2>
+      <div class="bar" style="margin-bottom:8px">
+        <select id="aN"><option value="30">Top 30 · 3 trận</option><option value="20">Top 20 · 2 trận</option><option value="10">Top 10 · 1 trận</option></select>
+        <input id="aL" placeholder="Tên vòng, vd: Vòng loại trực tuyến" style="width:250px">
+        <input id="aT" placeholder="Giờ thi, vd: 19:30 ngày 20/12" style="width:220px">
+        <button id="aDraw">Chốt top và bốc thăm</button>
+      </div>
+      <div class="bar" style="margin-bottom:0"><button class="ghost" id="aCsv" hidden>Tải danh sách trận (CSV)</button><button class="warn" id="aUndo" hidden>Hủy lượt bốc thăm này</button><span class="err" id="aE"></span></div>
+      <div id="aOut"></div>
+    </div>
     <div class="card"><h2>Theo ngày</h2><table id="tDay"></table></div>
     <div class="card"><h2>Theo cơ sở và cấp</h2><table id="tBr"></table></div>
     <div class="card"><h2>Mã đổi quà</h2><table id="tCode"></table></div>
@@ -64,7 +79,37 @@ button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16p
       table('#tBr',['Cơ sở','Cấp','Số bé','Vào Zalo','Qua bạn mời'],d.byBranch.map(function(x){return[x.branch,LV[x.lv],x.players,x.zalo,x.invited]}),[2,3,4]);
       table('#tCode',['Quà','Đã phát mã','Đã trao'],d.codes.map(function(x){return[x.gift,x.issued,x.redeemed]}),[1,2]);
       table('#tFlag',['Ngày','Bé','SĐT','Trạm','Lý do'],d.flagged.map(function(x){return[x.date,x.name,x.phone,x.station,x.flag]}),[]);
+      aLoad();
     }).catch(function(e){KEY='';$('#keyBar').hidden=false;$('#out').hidden=true;$('#e').textContent=e.message})}
+  // ---------- Đấu trường 5vs5 ----------
+  var DRAW=null;
+  function aCall(m,path,b){return fetch('/api/'+path,{method:m,headers:{'x-key':KEY,'content-type':'application/json'},body:b?JSON.stringify(b):undefined}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error);return j})})}
+  function aLoad(){aCall('GET','admin/arena').then(function(d){
+    DRAW=d.draw;$('#aCsv').hidden=$('#aUndo').hidden=!DRAW;var h='';
+    if(DRAW){
+      var base=location.origin+'/';
+      h+='<div class="mt">'+esc(DRAW.label)+(DRAW.at?' · '+esc(DRAW.at):'')+' <small>bốc thăm lúc '+esc(new Date(DRAW.created_at).toLocaleString('vi-VN'))+'</small></div>';
+      DRAW.matches.forEach(function(m){
+        h+='<div class="mt">Trận '+m.idx+': Đội '+esc(m.a.team.name)+' – Đội '+esc(m.b.team.name)+' · phòng '+esc(m.room)+'<br><small>MC: '+esc(base)+'?room='+esc(m.room)+'&view=host · Màn chiếu: '+esc(base)+'?room='+esc(m.room)+'&view=stage</small></div>';
+        h+='<table><tr><th>Làn</th><th>Đội '+esc(m.a.team.name)+'</th><th>Cấp</th><th>Cơ sở</th><th>SĐT</th><th></th><th>Đội '+esc(m.b.team.name)+'</th><th>Cấp</th><th>Cơ sở</th><th>SĐT</th></tr>';
+        for(var l=0;l<5;l++){var x=m.a.kids[l],y=m.b.kids[l];h+='<tr><td class="n">'+(l+1)+'</td><td>'+esc(x.name)+' · '+esc(x.school)+'</td><td>'+esc(x.lvName)+'</td><td>'+esc(x.branch)+'</td><td>'+esc(x.phone)+'</td><td class="vs">đấu</td><td>'+esc(y.name)+' · '+esc(y.school)+'</td><td>'+esc(y.lvName)+'</td><td>'+esc(y.branch)+'</td><td>'+esc(y.phone)+'</td></tr>'}
+        h+='</table>';
+      });
+    }else{
+      h+='<div class="mt">Chưa bốc thăm · top 30 điểm mùa hiện tại</div><table><tr><th>Hạng</th><th>Bé</th><th>Cấp</th><th>Trường</th><th>Cơ sở</th><th>Điểm mùa</th></tr>'+(d.top.length?d.top.map(function(x,i){return'<tr><td class="n">'+(i+1)+'</td><td>'+esc(x.name)+'</td><td>'+LV[x.lv]+'</td><td>'+esc(x.school)+'</td><td>'+esc(x.branch)+'</td><td class="n">'+num(x.season)+'</td></tr>'}).join(''):'<tr><td colspan="6">Chưa có bé nào có điểm</td></tr>')+'</table>';
+    }
+    $('#aOut').innerHTML=h;
+  }).catch(function(e){$('#aE').textContent=e.message})}
+  $('#aDraw').onclick=function(){
+    var n=+$('#aN').value;$('#aE').textContent='';
+    if(DRAW&&!confirm('Đã có danh sách "'+DRAW.label+'". Bốc thăm lượt mới thì các bé sẽ thấy trận theo lượt mới. Tiếp tục?'))return;
+    if(!DRAW&&!confirm('Chốt top '+n+' bé điểm mùa cao nhất và bốc thăm thành '+(n/5)+' đội?'))return;
+    aCall('POST','admin/arena/draw',{n:n,label:$('#aL').value,at:$('#aT').value}).then(aLoad).catch(function(e){$('#aE').textContent=e.message})};
+  $('#aUndo').onclick=function(){if(!DRAW||!confirm('Hủy lượt bốc thăm "'+DRAW.label+'"? Các mã phòng của lượt này sẽ không dùng được nữa.'))return;aCall('POST','admin/arena/undo',{}).then(aLoad).catch(function(e){$('#aE').textContent=e.message})};
+  $('#aCsv').onclick=function(){if(!DRAW)return;var c=function(v){v=String(v==null?'':v);if(/^[=+\-@]/.test(v))v="'"+v;return/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+    var rows=[['Trận','Phòng','Đội','Làn','Tên bé','Cấp','Trường','Cơ sở','SĐT phụ huynh','Đối thủ cùng làn']];
+    DRAW.matches.forEach(function(m){[[m.a,m.b],[m.b,m.a]].forEach(function(p){p[0].kids.forEach(function(k,l){rows.push([m.idx,m.room,p[0].team.name,l+1,k.name,k.lvName,k.school,k.branch,"'"+k.phone,p[1].kids[l].name])})})});
+    var b=new Blob(['\ufeff'+rows.map(function(r){return r.map(c).join(',')}).join('\r\n')],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='dau-truong-5vs5.csv';document.body.appendChild(a);a.click();a.remove()};
   $('#go').onclick=function(){KEY=$('#k').value.trim();$('#k').value='';$('#e').textContent='';if(KEY)load()};
   $('#k').onkeydown=function(e){if(e.key==='Enter')$('#go').click()};
   $('#re').onclick=load;

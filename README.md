@@ -52,7 +52,7 @@ Chạy kèm máy chủ: `npx wrangler pages dev public --d1 DB --binding STAFF_K
 | Chấm điểm | Máy chủ trừ vé khi bắt đầu lượt, giới hạn 100 điểm/lượt, 20 kẹo/ngày, đối chiếu điểm với số kẹo, gắn cờ lượt nhanh bất thường |
 | Thưởng | Chuỗi 3 ngày +100, 7 ngày +300; top 3 Ngôi sao hôm nay mỗi cấp +5 kẹo (trao khi bé mở game hôm sau) |
 | Đổi quà | 60 / 120 / 200 kẹo ra mã `PEC-XXXXX`; lễ tân tra mã ở `/quay/` và bấm xác nhận đã trao |
-| Phòng thi trực tiếp | MC mở `/?room=MÃ&view=host` (nhập khóa quầy hoặc khóa quản trị), chọn 2 cơ sở và cấp, bấm Bắt đầu. Bé mở `/?room=MÃ` (phải đăng ký), tự vào đội theo cơ sở, tối đa 5 bé/đội, chỗ trống có bạn máy 🤖. Màn chiếu `/?room=MÃ&view=stage`, khán giả `/?room=MÃ&role=spectator`. Đáp án không gửi về máy bé; mất mạng vào lại vẫn giữ chỗ và điểm. Trận trực tiếp không trừ vé, không cộng điểm ngày |
+| Đấu trường 5vs5 | Trang `/quantri/` mục Đấu trường: chốt top 10/20/30 bé điểm mùa cao nhất toàn hệ thống (không tính bé bị gắn cờ), bốc ngẫu nhiên thành đội 5 bạn (Sao Đỏ, Rừng Thông, Cực Quang, Băng Lam, Tím Đêm, Kẹo Gậy), mỗi 2 đội một trận có mã phòng riêng; trong trận xếp làn theo cấp để mỗi cặp gần cấp nhau. Mỗi cặp một bộ câu hỏi riêng theo cấp thấp hơn của 2 bạn. Bé có tên vào trạm Đấu trường thấy đội, đối thủ cùng làn, giờ thi và nút Vào phòng thi; bé ngoài top chỉ xem và cổ vũ. MC mở `/?room=MÃ&view=host` (khóa quầy hoặc quản trị) bấm Bắt đầu, bé vắng có bạn máy 🤖 thi thay, vào kịp thì thi tiếp. Màn chiếu `/?room=MÃ&view=stage`. Không dùng vé, không cộng điểm ngày |
 | Bảo mật | Bảng xếp hạng chỉ hiện tên gọi và trường; số điện thoại chỉ có trong file CSV ở trang `/quantri/`; quầy chỉ thấy 3 số cuối |
 
 Bảng dữ liệu tự tạo ở lần gọi đầu tiên.

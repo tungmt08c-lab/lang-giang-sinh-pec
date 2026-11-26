@@ -31,6 +31,9 @@ const SCHEMA = [
     started_at INTEGER NOT NULL, finished_at INTEGER, pts INTEGER, candy INTEGER, flag TEXT)`,
   `CREATE TABLE IF NOT EXISTS codes(code TEXT PRIMARY KEY, player_id INTEGER NOT NULL, gift TEXT NOT NULL, need INTEGER NOT NULL,
     created_at TEXT NOT NULL, redeemed_at TEXT, redeemed_branch TEXT)`,
+  `CREATE TABLE IF NOT EXISTS arena_matches(room TEXT PRIMARY KEY, draw_id INTEGER NOT NULL, idx INTEGER NOT NULL, label TEXT NOT NULL, at TEXT NOT NULL,
+    team_a TEXT NOT NULL, team_b TEXT NOT NULL, created_at TEXT NOT NULL)`,
+  `CREATE INDEX IF NOT EXISTS ix_arena_draw ON arena_matches(draw_id, idx)`,
 ];
 let ready = false;
 async function init(db) {
@@ -322,6 +325,78 @@ R['GET admin/players.csv'] = async ({ db, env, req, url }) => {
   const cell = v => { let s = String(v ?? ''); if (/^[=+\-@]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const lines = rs.results.map((r, i) => [i + 1, r.name, LV[r.lv], r.school, r.branch, "'" + r.phone, r.created, r.zalo ? 'Có' : '', r.inviter, r.season, r.candy_total, r.candy, r.days_played, r.codes, r.redeemed].map(cell).join(','));
   return new Response('﻿' + [head.join(','), ...lines].join('\r\n'), { headers: { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="lang-giang-sinh-${vnDay()}.csv"`, 'cache-control': 'no-store' } });
+};
+
+// ---------- Đấu trường 5vs5: chốt top toàn hệ thống, bốc thăm đội 5 bạn, ghép cặp từng làn ----------
+const ARENA_TEAMS = [
+  { kind: 'team', id: 'saodo', name: 'Sao Đỏ', teamTitle: 'Chiến Binh Sao Đỏ', color: '#E73236', badge: 'assets/badge-branch-lachtray.png' },
+  { kind: 'team', id: 'rungthong', name: 'Rừng Thông', teamTitle: 'Vệ Binh Rừng Thông', color: '#33B865', badge: 'assets/badge-branch-tohieu.png' },
+  { kind: 'team', id: 'cucquang', name: 'Cực Quang', teamTitle: 'Kỵ Sĩ Cực Quang', color: '#F2B600', badge: 'assets/badge-branch-imperia.png' },
+  { kind: 'team', id: 'banglam', name: 'Băng Lam', teamTitle: 'Tinh Linh Băng Lam', color: '#3D9BE9', badge: 'assets/badge-branch-danang.png' },
+  { kind: 'team', id: 'timdem', name: 'Tím Đêm', teamTitle: 'Tuần Lộc Tím Đêm', color: '#A146C9', badge: 'assets/badge-branch-thuynguyen.png' },
+  { kind: 'team', id: 'keogay', name: 'Kẹo Gậy', teamTitle: 'Hiệp Sĩ Kẹo Gậy', color: '#E73236', badge: 'assets/badge-branch-lachtray.png' },
+];
+const shuffleArr = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+async function arenaDraw(db, id) {
+  const did = id || (await db.prepare('SELECT MAX(draw_id) d FROM arena_matches').first()).d;
+  if (!did) return null;
+  const rs = (await db.prepare('SELECT * FROM arena_matches WHERE draw_id = ? ORDER BY idx').bind(did).all()).results;
+  if (!rs.length) return null;
+  return { id: did, label: rs[0].label, at: rs[0].at, created_at: rs[0].created_at, matches: rs.map(r => ({ room: r.room, idx: r.idx, a: JSON.parse(r.team_a), b: JSON.parse(r.team_b) })) };
+}
+const LVN = ['Tiểu Tinh Linh', 'Tuần Lộc', 'Ông Già Noel'];
+const pubTeam = t => ({ team: t.team, kids: t.kids.map(k => ({ name: k.name, school: k.school, branch: k.branch, lv: k.lv })) });
+// trạm Đấu trường: trận của bé (nếu có tên) và các trận để vào xem
+R['GET arena/info'] = async ({ db, req }) => {
+  const d = await arenaDraw(db);
+  if (!d) return json({ draw: null });
+  const p = await auth(db, req);
+  let mine = null;
+  if (p) for (const m of d.matches) for (const [T, t, o] of [['A', m.a, m.b], ['B', m.b, m.a]]) {
+    const l = t.kids.findIndex(k => k.pid === p.id);
+    if (l >= 0) mine = { room: m.room, team: T, lane: l, mates: pubTeam(t), opps: pubTeam(o), rival: { name: o.kids[l].name, school: o.kids[l].school, branch: o.kids[l].branch } };
+  }
+  return json({ draw: { label: d.label, at: d.at, n: d.matches.length * 10 }, mine, matches: d.matches.map(m => ({ room: m.room, a: pubTeam(m.a), b: pubTeam(m.b) })) });
+};
+R['POST admin/arena/draw'] = async ({ db, env, req, url }) => {
+  if (!adminOk(env, req, url)) return fail('Sai khóa quản trị', 401);
+  const b = await body(req);
+  const n = +b.n, label = clean(b.label, 60) || 'Vòng Đấu trường 5vs5', at = clean(b.at, 60);
+  if (![10, 20, 30].includes(n)) return fail('Chọn 10, 20 hoặc 30 bé');
+  const top = (await db.prepare('SELECT id, name, lv, school, branch, season FROM players WHERE flagged = 0 AND season > 0 ORDER BY season DESC, id LIMIT ?').bind(n).all()).results;
+  if (top.length < n) return fail(`Mới có ${top.length} bé có điểm, chưa đủ ${n} bé`);
+  const kids = shuffleArr(top).map(k => ({ pid: k.id, name: k.name, lv: k.lv, school: k.school, branch: k.branch, season: k.season }));
+  const did = ((await db.prepare('SELECT MAX(draw_id) d FROM arena_matches').first()).d || 0) + 1;
+  const stmts = [], now = nowIso();
+  for (let i = 0; i < n / 10; i++) {
+    let room;
+    for (let t = 0; t < 20; t++) { room = 'DT' + rand(4); if (!(await db.prepare('SELECT 1 FROM arena_matches WHERE room = ?').bind(room).first())) break; }
+    // đội bốc ngẫu nhiên; trong trận xếp làn theo cấp để mỗi cặp đấu gần cấp nhau nhất
+    const team = j => ({ team: ARENA_TEAMS[2 * i + j], kids: kids.slice(i * 10 + j * 5, i * 10 + j * 5 + 5).sort((x, y) => x.lv - y.lv) });
+    stmts.push(db.prepare('INSERT INTO arena_matches(room, draw_id, idx, label, at, team_a, team_b, created_at) VALUES (?,?,?,?,?,?,?,?)')
+      .bind(room, did, i + 1, label, at, JSON.stringify(team(0)), JSON.stringify(team(1)), now));
+  }
+  await db.batch(stmts);
+  return json({ ok: true, draw: await arenaDraw(db, did) });
+};
+R['GET admin/arena'] = async ({ db, env, req, url }) => {
+  if (!adminOk(env, req, url)) return fail('Sai khóa quản trị', 401);
+  const d = await arenaDraw(db);
+  if (d) {
+    const ph = {};
+    const ids = d.matches.flatMap(m => [...m.a.kids, ...m.b.kids].map(k => k.pid));
+    for (const r of (await db.prepare(`SELECT id, phone FROM players WHERE id IN (${ids.map(() => '?').join(',')})`).bind(...ids).all()).results) ph[r.id] = r.phone;
+    d.matches.forEach(m => [m.a, m.b].forEach(t => t.kids.forEach(k => { k.phone = ph[k.pid] || ''; k.lvName = LVN[k.lv]; })));
+  }
+  const top = (await db.prepare('SELECT name, lv, school, branch, season FROM players WHERE flagged = 0 AND season > 0 ORDER BY season DESC, id LIMIT 30').all()).results;
+  return json({ draw: d, top });
+};
+R['POST admin/arena/undo'] = async ({ db, env, req, url }) => {
+  if (!adminOk(env, req, url)) return fail('Sai khóa quản trị', 401);
+  const d = await arenaDraw(db);
+  if (!d) return fail('Chưa có lượt bốc thăm nào');
+  await db.prepare('DELETE FROM arena_matches WHERE draw_id = ?').bind(d.id).run();
+  return json({ ok: true });
 };
 
 const NEED_AUTH = new Set(['GET me', 'POST round/start', 'POST round/finish', 'POST box', 'POST zalo', 'POST redeem', 'GET board']);

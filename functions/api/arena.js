@@ -6,6 +6,7 @@ async function sha(t) { return Array.from(new Uint8Array(await crypto.subtle.dig
 function sameKey(a, b) { if (!a || !b || a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }
 const fromB64u = s => { try { s = s.replace(/-/g, '+').replace(/_/g, '/'); const bin = atob(s + '==='.slice((s.length + 3) % 4)); return new TextDecoder().decode(Uint8Array.from(bin, ch => ch.charCodeAt(0))); } catch (e) { return ''; } };
 const deny = (msg, s) => new Response(msg, { status: s });
+const toB64 = str => { const u = new TextEncoder().encode(str); let b = ''; for (let i = 0; i < u.length; i++) b += String.fromCharCode(u[i]); return btoa(b); };
 
 export async function onRequest({ request, env }) {
   if (request.headers.get('Upgrade') !== 'websocket') return deny('Cần kết nối WebSocket', 426);
@@ -19,11 +20,23 @@ export async function onRequest({ request, env }) {
   const cred = protos.find(p => p.startsWith('t.') || p.startsWith('k.')) || '';
   const h = new Headers({ Upgrade: 'websocket', 'X-Role': role });
   if (protos.includes('pec')) h.set('Sec-WebSocket-Protocol', 'pec');
+  if (!env.DB) return deny('Chưa gắn cơ sở dữ liệu', 503);
+  // danh sách trận lấy từ bảng bốc thăm; phòng đấu chỉ nhận đúng 10 bé trong danh sách
+  let row = null;
+  try { row = await env.DB.prepare('SELECT room, label, at, team_a, team_b FROM arena_matches WHERE room = ?').bind(room).first(); } catch (e) {}
+  if (!row) return deny('Không có trận này', 404);
+  const A = JSON.parse(row.team_a), B = JSON.parse(row.team_b);
+  const side = t => ({ team: t.team, kids: t.kids.map(k => ({ pid: k.pid, name: k.name, branch: k.branch, lv: k.lv })) });
+  h.set('X-Match', toB64(JSON.stringify({ room: row.room, label: row.label, at: row.at, a: side(A), b: side(B) })));
   if (role === 'player') {
-    if (!env.DB || !cred.startsWith('t.')) return deny('Cần đăng ký để vào phòng thi', 401);
+    if (!cred.startsWith('t.')) return deny('Cần đăng ký để vào phòng thi', 401);
     const p = await env.DB.prepare('SELECT p.id, p.name, p.branch, p.flagged FROM tokens t JOIN players p ON p.id = t.player_id WHERE t.hash = ?').bind(await sha(cred.slice(2))).first();
     if (!p) return deny('Phiên đăng nhập đã hết', 401);
+    let seat = null;
+    [['A', A], ['B', B]].forEach(([T, t]) => t.kids.forEach((k, l) => { if (String(k.pid) === String(p.id)) seat = { T, l }; }));
+    if (!seat) return deny('Bé không có tên trong trận này', 403);
     h.set('X-Pid', String(p.id)); h.set('X-Name', encodeURIComponent(p.name)); h.set('X-Branch', encodeURIComponent(p.branch));
+    h.set('X-Team', seat.T); h.set('X-Lane', String(seat.l));
   }
   if (role === 'host') {
     const k = cred.startsWith('k.') ? fromB64u(cred.slice(2)) : '';

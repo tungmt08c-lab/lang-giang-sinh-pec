@@ -687,7 +687,7 @@ function countdown(){
 
 /* ================= MỞ HỘP QUÀ → VÀO TRẠM ================= */
 let cur=null,cleanup=null;
-function access(s){if(s.id==='arena'&&!S.profile)return 'practice';if(!S.profile)return S.trial[s.id]?'reg':'trial';ensureDay();return S.day.tk>0?'scored':'practice'}
+function access(s){if(s.id==='arena')return 'practice';if(!S.profile)return S.trial[s.id]?'reg':'trial';ensureDay();return S.day.tk>0?'scored':'practice'}
 function giftFx(label,cb){
   jingle();
   const ov=$('#gift'),b=ov.querySelector('.burst');
@@ -714,7 +714,7 @@ async function enter(s,m){
   MODE=m;RC=0;
   if(m==='scored'&&!SRV&&s.id!=='arena')S.day.tk--;if(m==='trial')S.trial[s.id]=true;save();refresh();
   const md=$('#mode');md.className='mode'+(m==='scored'?'':' pr');
-  md.textContent=m==='scored'?(s.id==='arena'?`Mỗi trận dùng 1 vé · còn ${S.day.tk} vé hôm nay`:`Lượt tính điểm · còn ${S.day.tk} vé hôm nay`):m==='practice'?'Luyện tập · hết vé hôm nay, không tính điểm':'Chơi thử · đăng ký để lưu điểm và kẹo';
+  md.textContent=s.id==='arena'?'Vòng Đấu trường 5vs5 · không dùng vé':m==='scored'?`Lượt tính điểm · còn ${S.day.tk} vé hôm nay`:m==='practice'?'Luyện tập · hết vé hôm nay, không tính điểm':'Chơi thử · đăng ký để lưu điểm và kẹo';
   cur=s;$('#home').style.display='none';$('#play').style.display='flex';$('#play').className='th-'+s.id;garland(s.id);
   $('#ptitle').textContent=s.name;window.scrollTo(0,0);
   if(cleanup){cleanup();cleanup=null}
@@ -1087,16 +1087,10 @@ function Arena(){
       }else if(MODE==='scored'){const b=addPts(pts);if(b)toast(b)}
       save();refresh();
     },
+    // Đấu trường là vòng thi của top toàn hệ thống; chơi lẻ với bạn máy chỉ để luyện, không dùng vé, không tính điểm
     async beginRound(){
-      RC=0;ROUND=null;
-      if(!S.profile){MODE='practice';return}
-      ensureDay();MODE=S.day.tk>0?'scored':'practice';
-      if(MODE==='scored'){
-        if(SRV){try{const r=await api('round/start',{station:'arena'});applyState(r.state);if(r.mode==='scored')ROUND=r.round;else MODE='practice'}catch(e){toast(e.message+' · trận này là trận luyện tập');MODE='practice'}}
-        else{S.day.tk--;save()}
-      }
-      refresh();const md=$('#mode');md.className='mode'+(MODE==='scored'?'':' pr');
-      md.textContent=MODE==='scored'?`Trận tính điểm · còn ${S.day.tk} vé hôm nay`:'Luyện tập · hết vé hôm nay, không tính điểm';
+      RC=0;ROUND=null;MODE='practice';
+      const md=$('#mode');md.className='mode pr';md.textContent='Luyện tập với bạn máy · không tính điểm';
     },
     setCleanup(fn){cleanup=fn},
     token:()=>S.profile&&S.profile.token,

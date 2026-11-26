@@ -205,6 +205,8 @@
     'Hoàng Bách', 'Thảo Nhi', 'Quang Hải', 'Ngọc Diệp', 'Thiện Nhân', 'Bảo Châu'
   ];
 
+  const CAMPUS_IDS = ['lachtray', 'tohieu', 'imperia', 'danang', 'thuynguyen'];
+  const tname = c => !c ? '' : (c.kind === 'team' || !CAMPUS_IDS.includes(c.id) ? 'Đội ' : 'PEC ') + c.name;
   const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const shuffle = a => {
     const b = a.slice();
@@ -219,7 +221,7 @@
   // Kênh phòng đấu thật qua máy chủ (Durable Object): tự nối lại khi rớt mạng
   function createServerBus(room, role, cred) {
     const handlers = [], status = [];
-    let ws = null, closed = false, tries = 0, last = null, pingT = null;
+    let ws = null, closed = false, tries = 0, last = null, pingT = null, everOpen = false;
     const emit = msg => handlers.forEach(fn => { try { fn(msg); } catch (e) { console.error(e); } });
     const setStatus = st => status.forEach(fn => { try { fn(st); } catch (e) {} });
     function open() {
@@ -229,7 +231,7 @@
       const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
       try { ws = new WebSocket(`${proto}//${location.host}/api/arena?room=${encodeURIComponent(room)}&role=${role}`, protos); }
       catch (e) { setStatus('fail'); return; }
-      ws.onopen = () => { tries = 0; setStatus('open'); clearInterval(pingT); pingT = setInterval(() => { try { ws.send('{"t":"ping"}'); } catch (e) {} }, 25000); };
+      ws.onopen = () => { tries = 0; everOpen = true; setStatus('open'); clearInterval(pingT); pingT = setInterval(() => { try { ws.send('{"t":"ping"}'); } catch (e) {} }, 25000); };
       ws.onmessage = e => {
         let m; try { m = JSON.parse(e.data); } catch (err) { return; }
         if (m.t === 'snap' && m.snap) { last = m.snap; emit(m.snap); }
@@ -240,7 +242,8 @@
         clearInterval(pingT);
         if (closed) return;
         if (e.code === 4000) { setStatus('replaced'); return; }
-        if (tries === 0 && e.code === 1006 && !last) setStatus('denied');
+        // chưa từng vào được phòng: bị từ chối (không có tên, sai khóa, sai mã phòng), không thử lại
+        if (!everOpen) { setStatus('denied'); return; }
         tries++;
         if (tries > 8) { setStatus('fail'); return; }
         setStatus('retry');
@@ -566,7 +569,7 @@
             <div class="ar-vs-banner">
               <div class="ar-team-card" style="--tc:${M.myCamp.color}">
                 <img class="bdg" src="${M.myCamp.badge}" alt="">
-                <b>PEC ${esc(M.myCamp.name)}</b>
+                <b>${esc(tname(M.myCamp))}</b>
                 <small>${esc(M.myCamp.teamTitle)}</small>
               </div>
               <div class="ar-vs-badge">VS</div>
@@ -589,7 +592,7 @@
           const bdg = document.getElementById('mmOppBdg');
           const nm = document.getElementById('mmOppName');
           if (bdg) bdg.src = rc.badge;
-          if (nm) nm.textContent = 'PEC ' + rc.name;
+          if (nm) nm.textContent = tname(rc);
           B.tone(660 + spin * 90, 0.06, 'triangle', 0.06);
           spin++;
           later(spinTick, 150);
@@ -598,7 +601,7 @@
           const nm = document.getElementById('mmOppName');
           const sb = document.getElementById('mmOppSub');
           if (bdg) bdg.src = M.oppCamp.badge;
-          if (nm) nm.textContent = 'PEC ' + M.oppCamp.name;
+          if (nm) nm.textContent = tname(M.oppCamp);
           if (sb) sb.textContent = M.oppCamp.teamTitle;
           B.jingle();
 
@@ -642,9 +645,73 @@
       activeBus.send(snap);
     }
 
+    /* ==================== 2A. TRẠM ĐẤU TRƯỜNG: TOP TOÀN HỆ THỐNG ĐÃ BỐC THĂM ĐỘI ==================== */
+    const LVN = ['Tiểu Tinh Linh', 'Tuần Lộc', 'Ông Già Noel'];
+    function renderArenaHub() {
+      clearTimers();
+      setWideMode(false);
+      if (modeBadgeEl) modeBadgeEl.style.display = 'none';
+      const ptitle = document.getElementById('ptitle');
+      if (ptitle) ptitle.textContent = 'Đấu trường Bông tuyết 5vs5';
+      stage.innerHTML = `<div class="ar-wrap"><div class="ar-card" style="text-align:center"><p class="hint">Đang xem lịch thi đấu…</p></div></div>`;
+      const h = {}; const tk = B.token && B.token(); if (tk) h.authorization = 'Bearer ' + tk;
+      fetch('/api/arena/info', { headers: h, cache: 'no-store' }).then(r => r.ok ? r.json() : Promise.reject()).then(d => { if (!destroyed) paintHub(d); }, () => {
+        if (!destroyed) stage.innerHTML = `<div class="ar-wrap"><div class="ar-card" style="text-align:center"><h4>Chưa tải được lịch thi đấu</h4><p class="hint">Bé kiểm tra mạng rồi thử lại nhé.</p><button type="button" class="btn" id="hubRe">Thử lại</button></div></div>`;
+        const b = stage.querySelector('#hubRe'); if (b) b.onclick = renderArenaHub;
+      });
+    }
+    function paintHub(d) {
+      const kidRow = (k, hl) => `<div class="ar-roster-pair ${hl ? 'me' : ''}" style="padding:6px 9px"><div class="ar-rp-side" style="min-width:0"><span style="white-space:normal">${esc(k.name)}<small style="display:block;color:#CFE2FF;font-size:11px">${esc(k.school)} · PEC ${esc(k.branch)}</small></span></div></div>`;
+      const matchCard = (m, i) => `<div class="ar-card" style="padding:10px 12px">
+          <div class="ar-sec-head" style="margin-bottom:4px"><h4 style="font-size:15px">Trận ${i + 1}: ${esc(tname(m.a.team))} – ${esc(tname(m.b.team))}</h4></div>
+          <p class="hint" style="margin:0 0 8px;font-size:12.5px">${m.a.kids.map(k => esc(k.name)).join(', ')} <b style="color:#FFE680">đấu</b> ${m.b.kids.map(k => esc(k.name)).join(', ')}</p>
+          <button type="button" class="btn ghost" data-watch="${esc(m.room)}" style="width:100%">Vào xem và cổ vũ</button></div>`;
+      let html = '';
+      if (!d.draw) {
+        html = `<div class="ar-card" style="text-align:center">
+          <img src="assets/arena-cup.png" alt="" style="width:110px;height:110px;object-fit:contain">
+          <h4 style="margin:6px 0">Vòng Đấu trường 5vs5 sắp mở</h4>
+          <p class="hint">Ban tổ chức chọn các bạn điểm mùa cao nhất toàn hệ thống, bốc thăm thành đội 5 bạn. Mỗi bạn đấu tay đôi với một bạn đội kia, mỗi cặp một bộ câu hỏi riêng.</p>
+          <p class="hint" style="color:#FFE680">Bé chơi đều các trạm mỗi ngày để leo hạng nhé!</p></div>`;
+      } else {
+        const dr = d.draw;
+        if (d.mine) {
+          const mi = d.mine;
+          html += `<div class="ar-card" style="text-align:center">
+            <div class="ar-round-pill" style="display:inline-block;margin-bottom:6px">🏆 ${esc(dr.label)}</div>
+            <h4 style="margin:4px 0">Bé có tên trong top ${dr.n} toàn hệ thống!</h4>
+            ${dr.at ? `<p class="hint" style="color:#FFE680;margin:2px 0">Giờ thi: ${esc(dr.at)}</p>` : ''}
+            <div class="ar-vs-banner" style="margin-top:8px">
+              <div class="ar-team-card" style="--tc:${mi.mates.team.color}"><img class="bdg" src="${mi.mates.team.badge}" alt=""><b>${esc(tname(mi.mates.team))}</b><small>Đội của bé</small></div>
+              <div class="ar-vs-badge">VS</div>
+              <div class="ar-team-card" style="--tc:${mi.opps.team.color}"><img class="bdg" src="${mi.opps.team.badge}" alt=""><b>${esc(tname(mi.opps.team))}</b><small>Đội bạn</small></div>
+            </div>
+            <p style="margin:8px 0 2px;font-weight:800">Bạn đấu với bé ở làn ${mi.lane + 1}: <span style="color:#FFE680">${esc(mi.rival.name)}</span></p>
+            <p class="hint" style="margin:0">${esc(mi.rival.school)} · PEC ${esc(mi.rival.branch)}</p>
+            <div style="display:grid;gap:8px;margin-top:12px">
+              <button type="button" class="btn" id="hubGo">Vào phòng thi</button>
+              <button type="button" class="btn ghost" id="hubPractice">Luyện tập với bạn máy (không tính điểm)</button>
+            </div></div>
+          <div class="ar-card"><div class="ar-sec-head"><h4>Đồng đội của bé</h4><span>${esc(tname(mi.mates.team))}</span></div>
+            ${mi.mates.kids.map((k, i) => kidRow(k, i === mi.lane)).join('')}</div>`;
+        } else {
+          html += `<div class="ar-card" style="text-align:center">
+            <div class="ar-round-pill" style="display:inline-block;margin-bottom:6px">🏆 ${esc(dr.label)}</div>
+            <h4 style="margin:4px 0">Vòng đấu của top ${dr.n} toàn hệ thống</h4>
+            ${dr.at ? `<p class="hint" style="color:#FFE680;margin:2px 0">Giờ thi: ${esc(dr.at)}</p>` : ''}
+            <p class="hint">Bé vào xem trực tiếp và cổ vũ các bạn nhé. Mùa sau bé leo hạng để vào thi cùng!</p></div>`;
+        }
+        html += d.matches.map(matchCard).join('');
+      }
+      stage.innerHTML = `<div class="ar-wrap">${html}<button type="button" class="btn ghost" id="hubHome">← Về làng</button></div>`;
+      stage.querySelectorAll('[data-watch]').forEach(b => { b.onclick = () => { B.unlockAudio(); renderSpectatorView(b.dataset.watch); }; });
+      stage.querySelector('#hubHome').onclick = () => B.goHome();
+      const go = stage.querySelector('#hubGo'); if (go) go.onclick = () => { B.unlockAudio(); renderLiveRoom(d.mine.room); };
+      const pr = stage.querySelector('#hubPractice'); if (pr) pr.onclick = () => { B.unlockAudio(); renderLobby(); };
+    }
+
     /* ==================== 2B. PHÒNG THI GO-LIVE (MÁY CHỦ GIỮ ĐỀ VÀ CHẤM ĐIỂM) ==================== */
     let liveM = null;
-    function campusById(id) { return CFG.campuses.find(c => c.id === id) || CFG.campuses[0]; }
     function renderLiveRoom(pin) {
       clearTimers();
       setWideMode(false);
@@ -677,17 +744,18 @@
       let you = null, room = null, note = 'Đang vào phòng…';
       function paint() {
         if (liveM) return;
-        const cA = room && room.a ? campusById(room.a) : null, cB = room && room.b ? campusById(room.b) : null;
-        const lvNames = ['Tiểu Tinh Linh', 'Tuần Lộc', 'Ông Già Noel'];
+        const cA = room && room.a, cB = room && room.b;
         const side = (camp, list, T) => `
           <div class="ar-card" style="padding:10px">
-            <div class="ar-sec-head" style="margin-bottom:6px"><h4 style="font-size:15px">${camp ? 'PEC ' + esc(camp.name) : 'Chờ MC chọn'}</h4><span>${list ? list.filter(Boolean).length : 0}/5 bạn</span></div>
-            ${(list || [null, null, null, null, null]).map((p, i) => `<div class="ar-roster-pair ${you && you.team === T && you.lane === i ? 'me' : ''}" style="padding:5px 8px"><div class="ar-rp-side">${p ? `<img src="${getAvatar(p.av).file}" alt=""><span>${esc(p.name)}${p.online ? '' : ' (mất kết nối)'}</span>` : '<span style="opacity:.55">Chỗ trống · 🤖 thay</span>'}</div><span style="font-size:11px;color:#CFE2FF;white-space:nowrap">Làn ${i + 1}</span></div>`).join('')}
+            <div class="ar-sec-head" style="margin-bottom:6px"><h4 style="font-size:15px">${camp ? esc(tname(camp)) : 'Đội'}</h4><span>${list ? list.filter(p => p && p.online).length : 0}/5 bạn đã vào</span></div>
+            ${(list || [null, null, null, null, null]).map((p, i) => `<div class="ar-roster-pair ${you && you.team === T && you.lane === i ? 'me' : ''}" style="padding:5px 8px"><div class="ar-rp-side">${p ? `<img src="${getAvatar(p.av).file}" alt="" style="${p.online ? '' : 'opacity:.45'}"><span style="white-space:normal">${esc(p.name)}<small style="display:block;font-size:10.5px;color:#CFE2FF">PEC ${esc(p.branch)}${p.online ? '' : ' · chưa vào'}</small></span>` : ''}</div><span style="font-size:11px;color:#CFE2FF;white-space:nowrap">Làn ${i + 1}</span></div>`).join('')}
           </div>`;
         stage.innerHTML = `
           <div class="ar-wrap">
             <div class="ar-card" style="text-align:center">
-              <div class="ar-round-pill" style="display:inline-block;margin-bottom:6px">📡 PHÒNG THI #${esc(pin)}${room ? ' · ' + lvNames[room.lv || 0] : ''}</div>
+              <div class="ar-round-pill" style="display:inline-block;margin-bottom:6px">📡 ${room && room.label ? esc(room.label) : 'PHÒNG THI'} · #${esc(pin)}</div>
+              ${room && room.at ? `<p class="hint" style="margin:2px 0">Giờ thi: ${esc(room.at)}</p>` : ''}
+              ${you ? `<p class="hint" style="margin:2px 0">Bé đấu ở làn ${you.lane + 1}, câu hỏi cấp ${LVN[(room.laneLv || [])[you.lane] || 0]}</p>` : ''}
               <p class="hint" id="lvNote" style="color:#FFE680;margin:4px 0 0">${esc(note)}</p>
             </div>
             ${side(cA, room && room.teamA, 'A')}
@@ -699,12 +767,12 @@
           </div>`;
         const z = stage.querySelector('#lvZ');
         if (z) z.onclick = e => { const b = e.target.closest('[data-zid]'); if (!b) return; selAvatar = b.dataset.zid; persistChoice(); bus.send({ t: 'avatar', av: selAvatar }); B.tone(1175, 0.08, 'triangle', 0.08); paint(); };
-        stage.querySelector('#lvOut').onclick = () => { bus.close(); activeBus = null; B.goHome(); };
+        stage.querySelector('#lvOut').onclick = () => { bus.close(); activeBus = null; renderArenaHub(); };
         const w = stage.querySelector('#lvWatch'); if (w) w.onclick = () => { bus.close(); activeBus = null; renderSpectatorView(pin); };
       }
       bus.onStatus(st => {
         if (st === 'open' && you) bus.send({ t: 'avatar', av: selAvatar });
-        note = st === 'open' ? (you ? 'Đã vào đội! Chờ MC bấm bắt đầu' : note) : st === 'retry' ? 'Mạng chập chờn, đang nối lại…' : st === 'replaced' ? 'Bé đã vào phòng này trên máy khác' : st === 'denied' ? 'Không vào được phòng. Bố mẹ đăng nhập lại giúp bé nhé' : st === 'fail' ? 'Không nối được phòng thi, bé thử tải lại trang' : note;
+        note = st === 'open' ? (you ? 'Đã vào đội! Chờ MC bấm bắt đầu' : note) : st === 'retry' ? 'Mạng chập chờn, đang nối lại…' : st === 'replaced' ? 'Bé đã vào phòng này trên máy khác' : st === 'denied' ? 'Không vào được phòng. Bé kiểm tra mạng rồi tải lại trang, hoặc xem trận của mình ở trạm Đấu trường' : st === 'fail' ? 'Không nối được phòng thi, bé thử tải lại trang' : note;
         const el = document.getElementById('lvNote'); if (el) el.textContent = note; else if (!liveM) paint();
       });
       bus.on(msg => {
@@ -728,9 +796,9 @@
       const T = you.team, O = T === 'A' ? 'B' : 'A';
       const perm = [0, 1, 2, 3, 4]; perm[2] = you.lane; perm[you.lane] = 2;
       const mine = T === 'A' ? match.teamA : match.teamB, opp = T === 'A' ? match.teamB : match.teamA;
-      const mk = (p, i, isMe) => ({ lane: i, isMe, bot: !p.human, name: p.name, avatar: getAvatar(p.av), score: 0, streak: 0, wins: 0, correctMs: 0, immunity: 0 });
+      const mk = (p, i, isMe) => ({ lane: i, isMe, bot: !p.human, name: p.name, camp: p.branch || undefined, avatar: getAvatar(p.av), score: 0, streak: 0, wins: 0, correctMs: 0, immunity: 0 });
       return {
-        room: pin, level: match.lv, myCamp: campusById(T === 'A' ? match.a : match.b), oppCamp: campusById(T === 'A' ? match.b : match.a),
+        room: pin, level: (match.laneLv || [])[you.lane] || 0, myCamp: T === 'A' ? match.a : match.b, oppCamp: T === 'A' ? match.b : match.a,
         teamA: perm.map((sl, i) => mk(mine[sl], i, i === 2)), teamB: perm.map((sl, i) => mk(opp[sl], i, false)),
         teamAScore: 0, teamBScore: 0, cheerA: 0, cheerB: 0, rounds: [], roundIdx: 0, laneBalance: [50, 50, 50, 50, 50],
         skillsUsed: { shield: false, double: false, snowball: false }, skillsArmed: { shield: false, double: false, snowballNext: false },
@@ -744,12 +812,12 @@
         <div class="ar-wrap"><div class="ar-card ar-mm">
           <div class="ar-round-pill" style="display:inline-block;margin-bottom:6px">📡 PHÒNG THI #${esc(M.room)} · SẮP BẮT ĐẦU</div>
           <div class="ar-vs-banner">
-            <div class="ar-team-card" style="--tc:${M.myCamp.color}"><img class="bdg" src="${M.myCamp.badge}" alt=""><b>PEC ${esc(M.myCamp.name)}</b><small>${esc(M.myCamp.teamTitle)}</small></div>
+            <div class="ar-team-card" style="--tc:${M.myCamp.color}"><img class="bdg" src="${M.myCamp.badge}" alt=""><b>${esc(tname(M.myCamp))}</b><small>${esc(M.myCamp.teamTitle)}</small></div>
             <div class="ar-vs-badge">VS</div>
-            <div class="ar-team-card" style="--tc:${M.oppCamp.color}"><img class="bdg" src="${M.oppCamp.badge}" alt=""><b>PEC ${esc(M.oppCamp.name)}</b><small>${esc(M.oppCamp.teamTitle)}</small></div>
+            <div class="ar-team-card" style="--tc:${M.oppCamp.color}"><img class="bdg" src="${M.oppCamp.badge}" alt=""><b>${esc(tname(M.oppCamp))}</b><small>${esc(M.oppCamp.teamTitle)}</small></div>
           </div>
           ${M.teamA.map((pa, i) => { const pb = M.teamB[i]; return `<div class="ar-roster-pair ${pa.isMe ? 'me' : ''}"><div class="ar-rp-side"><img src="${pa.avatar.file}" alt=""><span>${esc(pa.name)}${pa.isMe ? ' (Bạn)' : ''}</span></div><span style="color:#FFE680;font-family:'Baloo 2'">❄️</span><div class="ar-rp-side r"><img src="${pb.avatar.file}" alt=""><span>${esc(pb.name)}</span></div></div>`; }).join('')}
-          <p class="hint" style="margin-top:8px;color:#FFE680">Bé đấu ở làn giữa. Bạn có 🤖 là bạn máy thay chỗ trống.</p>
+          <p class="hint" style="margin-top:8px;color:#FFE680">Bé đấu với bạn đối diện ở làn giữa, mỗi cặp một bộ câu hỏi riêng. Bạn có 🤖 là bạn máy thi thay bạn vắng mặt.</p>
         </div></div>`;
       B.jingle();
       later(() => runMatchBattle(M), Math.max(400, ms - 400));
@@ -813,7 +881,7 @@
               <div class="ar-sh-team">
                 <img src="${M.myCamp.badge}" alt="">
                 <div>
-                  <div class="tn">PEC ${esc(M.myCamp.name)}</div>
+                  <div class="tn">${esc(tname(M.myCamp))}</div>
                   <div class="ts" id="arScA">0</div>
                 </div>
               </div>
@@ -824,7 +892,7 @@
               <div class="ar-sh-team r">
                 <img src="${M.oppCamp.badge}" alt="">
                 <div>
-                  <div class="tn">PEC ${esc(M.oppCamp.name)}</div>
+                  <div class="tn">${esc(tname(M.oppCamp))}</div>
                   <div class="ts" id="arScB">0</div>
                 </div>
               </div>
@@ -1061,7 +1129,7 @@
       function renderSkillButtons() {
         const box = document.getElementById('arSkills');
         if (!box) return;
-        const canSnowball = selLv >= 1 && !M.skillsUsed.snowball && me.streak >= 3 && (opp.immunity || 0) <= 0;
+        const canSnowball = M.level >= 1 && !M.skillsUsed.snowball && me.streak >= 3 && (opp.immunity || 0) <= 0;
         box.innerHTML = `
           <button type="button" class="ar-skbtn ${M.skillsArmed.shield ? 'armed' : ''}" id="skShield" ${M.skillsUsed.shield && !M.skillsArmed.shield ? 'disabled' : ''}>
             <img src="assets/sk-shield.png" alt="">
@@ -1071,7 +1139,7 @@
             <img src="assets/sk-double.png" alt="">
             <div><b>Sao Nhân Đôi</b><br><span style="color:#FFE680">${M.skillsArmed.double ? 'Đang ×2!' : M.skillsUsed.double ? 'Đã dùng' : 'Nhân ×2 điểm'}</span></div>
           </button>
-          ${selLv >= 1 ? `
+          ${M.level >= 1 ? `
             <button type="button" class="ar-skbtn ${M.skillsArmed.snowballNext ? 'armed' : ''}" id="skSnow" ${(!canSnowball && !M.skillsArmed.snowballNext) ? 'disabled' : ''}>
               <img src="assets/sk-snowball.png" alt="">
               <div><b>Bão Tuyết 1s</b><br><span style="color:#5CE0B8">${M.skillsArmed.snowballNext ? 'Đã nạp!' : M.skillsUsed.snowball ? 'Đã dùng' : 'Mở ở Combo ×3'}</span></div>
@@ -1550,7 +1618,7 @@
             <canvas class="ar-cut-cv" id="arCutCv"></canvas>
             <div>
               <div class="ar-round-pill x2" style="display:inline-block;margin-bottom:6px">★ HOẠT CẢNH CHIẾN THẮNG ĐỒNG ĐỘI ★</div>
-              <div class="ar-cut-title" id="arCutTitle">LIÊN HOÀN QUYỀN PEC ${esc(winCamp.name.toUpperCase())}!</div>
+              <div class="ar-cut-title" id="arCutTitle">LIÊN HOÀN QUYỀN ${esc(tname(winCamp).toUpperCase())}!</div>
             </div>
 
             <div class="ar-cut-stage" id="arCutStage">
@@ -1567,9 +1635,9 @@
 
             <div style="position:relative;z-index:4;width:100%">
               <div style="font:800 22px 'Baloo 2';color:#fff;text-shadow:0 2px 0 #2B1440">
-                PEC ${esc(M.myCamp.name)}: <span style="color:#FFE680">${M.teamAScore.toLocaleString('vi-VN')}</span>
+                ${esc(tname(M.myCamp))}: <span style="color:#FFE680">${M.teamAScore.toLocaleString('vi-VN')}</span>
                 &nbsp;—&nbsp;
-                <span style="color:#FFE680">${M.teamBScore.toLocaleString('vi-VN')}</span> :PEC ${esc(M.oppCamp.name)}
+                <span style="color:#FFE680">${M.teamBScore.toLocaleString('vi-VN')}</span> :${esc(tname(M.oppCamp))}
               </div>
               <p class="hint" id="arCutSub" style="margin-top:3px">Cảnh 1/3: 5 chiến binh hợp lực tung Bão Cầu Tuyết áp đảo!</p>
             </div>
@@ -1613,7 +1681,7 @@
         if (!stg) return;
         B.jingle();
         B.confetti(window.innerWidth / 2, window.innerHeight * 0.3, 32);
-        if (ttl) ttl.textContent = `🏆 ĐỘI PEC ${winCamp.name.toUpperCase()} ĐĂNG QUANG!`;
+        if (ttl) ttl.textContent = `🏆 ${tname(winCamp).toUpperCase()} ĐĂNG QUANG!`;
         if (sub) sub.textContent = 'Cảnh 2/3: 5 chiến binh Con Giáp nhảy múa nâng Cúp Pha Lê Cực Quang!';
         stg.innerHTML = `
           <div style="display:flex;flex-direction:column;align-items:center;width:100%;gap:6px">
@@ -1669,19 +1737,19 @@
         <div class="ar-wrap">
           <div class="ar-card" style="text-align:center">
             <div class="ar-mvp-badge">
-              ${teamAWon ? '🏆 CHIẾN THẮNG ĐỒNG ĐỘI!' : '🌟 NỖ LỰC TUYỆT VỜI!'} · ĐỘI PEC ${esc(winCamp.name.toUpperCase())}
+              ${teamAWon ? '🏆 CHIẾN THẮNG ĐỒNG ĐỘI!' : '🌟 NỖ LỰC TUYỆT VỜI!'} · ${esc(tname(winCamp).toUpperCase())}
             </div>
             <div style="display:flex;justify-content:center;align-items:center;gap:14px;margin:6px 0">
               <div>
                 <img src="${M.myCamp.badge}" style="width:44px;height:44px;object-fit:contain" alt="">
                 <div style="font:800 22px 'Baloo 2';color:#FFE680">${M.teamAScore.toLocaleString('vi-VN')}</div>
-                <small style="font-size:11px;color:#E4DCFF">PEC ${esc(M.myCamp.name)}</small>
+                <small style="font-size:11px;color:#E4DCFF">${esc(tname(M.myCamp))}</small>
               </div>
               <img src="assets/arena-cup.png" style="width:68px;height:68px;object-fit:contain" alt="">
               <div>
                 <img src="${M.oppCamp.badge}" style="width:44px;height:44px;object-fit:contain" alt="">
                 <div style="font:800 22px 'Baloo 2';color:#FFE680">${M.teamBScore.toLocaleString('vi-VN')}</div>
-                <small style="font-size:11px;color:#E4DCFF">PEC ${esc(M.oppCamp.name)}</small>
+                <small style="font-size:11px;color:#E4DCFF">${esc(tname(M.oppCamp))}</small>
               </div>
             </div>
             <p class="sub" style="margin:4px 0 10px">
@@ -1720,6 +1788,7 @@
       stage.querySelector('#arSumHome').onclick = () => B.goHome();
       if (M.remote) { const ag = stage.querySelector('#arSumAgain'); ag.textContent = 'Về phòng thi'; ag.onclick = () => { B.unlockAudio(); liveM = null; renderLiveRoom(M.room); }; stage.querySelector('#arSumHome').onclick = () => { if (activeBus) { activeBus.close(); activeBus = null; } B.goHome(); }; }
       else stage.querySelector('#arSumAgain').onclick = () => { B.unlockAudio(); renderLobby(); };
+      if (!M.remote && canGoLive(B)) { const hb = stage.querySelector('#arSumHome'); if (hb) { hb.textContent = 'Về trạm Đấu trường'; hb.onclick = () => renderArenaHub(); } }
       stage.querySelector('#arBtnCert').onclick = () => downloadCertificate(M, teamAWon, mvp);
     }
 
@@ -1758,7 +1827,7 @@
       ctx.fillStyle = '#1E7F45'; ctx.font = '800 24px "Baloo 2", sans-serif';
       ctx.fillText(title, 360, 544);
       ctx.fillStyle = '#2B1440'; ctx.font = '700 20px "Be Vietnam Pro", sans-serif';
-      ctx.fillText(`Đội đại diện: Trung tâm Anh ngữ PEC ${M.myCamp.name}`, 360, 588);
+      ctx.fillText(M.myCamp.kind === 'team' ? `${tname(M.myCamp)} · Trung tâm Anh ngữ PEC` : `Đội đại diện: Trung tâm Anh ngữ PEC ${M.myCamp.name}`, 360, 588);
       ctx.fillText(`Điểm cá nhân: ${me.score} điểm · Tổng điểm Đội: ${M.teamAScore.toLocaleString('vi-VN')} điểm`, 360, 622);
       ctx.fillStyle = '#7A6899'; ctx.font = '600 16px "Be Vietnam Pro", sans-serif';
       ctx.fillText('PEC English Center — "Learning to be!" · Hải Phòng, Tháng 12/2026', 360, 686);
@@ -1782,7 +1851,7 @@
         c2.fillStyle = '#1E7F45'; c2.font = '700 26px sans-serif';
         c2.fillText(title, 360, 490);
         c2.fillStyle = '#2B1440'; c2.font = '700 22px sans-serif';
-        c2.fillText(`PEC ${M.myCamp.name} · ${me.score} điểm cá nhân`, 360, 560);
+        c2.fillText(`${tname(M.myCamp)} · ${me.score} điểm cá nhân`, 360, 560);
         const a2 = document.createElement('a');
         a2.href = cv2.toDataURL('image/png');
         a2.download = 'Chung-Nhan-PEC-5vs5.png';
@@ -1816,9 +1885,9 @@
                 📡 TRỰC TIẾP PHÒNG #${esc(pin)} · ${snap ? 'LƯỢT ' + snap.round + '/10' : 'ĐANG CHỜ MC MỞ MÀN'}
               </div>
               <div class="ar-vs-banner" style="margin:4px 0 10px">
-                <div class="ar-team-card" style="--tc:${cA.color}"><img class="bdg" src="${cA.badge}" alt=""><b>PEC ${esc(cA.name)}</b><div style="font:800 24px 'Baloo 2';color:#FFE680">${sA.toLocaleString('vi-VN')}</div></div>
+                <div class="ar-team-card" style="--tc:${cA.color}"><img class="bdg" src="${cA.badge}" alt=""><b>${esc(tname(cA))}</b><div style="font:800 24px 'Baloo 2';color:#FFE680">${sA.toLocaleString('vi-VN')}</div></div>
                 <div class="ar-vs-badge">VS</div>
-                <div class="ar-team-card" style="--tc:${cB.color}"><img class="bdg" src="${cB.badge}" alt=""><b>PEC ${esc(cB.name)}</b><div style="font:800 24px 'Baloo 2';color:#FFE680">${sB.toLocaleString('vi-VN')}</div></div>
+                <div class="ar-team-card" style="--tc:${cB.color}"><img class="bdg" src="${cB.badge}" alt=""><b>${esc(tname(cB))}</b><div style="font:800 24px 'Baloo 2';color:#FFE680">${sB.toLocaleString('vi-VN')}</div></div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <button type="button" class="btn" id="spCheerA" style="font-size:15px;padding:6px 10px">❤️ Cổ vũ ${esc(cA.name)}</button>
@@ -1832,7 +1901,7 @@
                 ${gq.opts.map((op, i) => `<button type="button" class="ar-opt" data-gi="${i}"><span class="ok-let">${'ABCD'[i]}</span><span>${esc(op)}</span></button>`).join('')}
               </div>
             </div>
-            <button type="button" class="btn ghost" id="spBackLobby">← Quay lại Sảnh Đấu Trường</button>
+            <button type="button" class="btn ghost" id="spBackLobby">← Về trạm Đấu trường</button>
           </div>
         `;
 
@@ -1847,7 +1916,7 @@
             later(() => { gqIdx++; paintSpec(activeBus.loadState()); }, 1100);
           } else { b.classList.add('wrong'); B.buzz(); }
         };
-        stage.querySelector('#spBackLobby').onclick = renderLobby;
+        stage.querySelector('#spBackLobby').onclick = () => { if (activeBus) { activeBus.close(); activeBus = null; } if (canGoLive(B)) renderArenaHub(); else renderLobby(); };
       }
 
       paintSpec(activeBus.loadState());
@@ -1871,13 +1940,13 @@
       let lobbyRoom = null;
 
       function paintStageLobby(room) {
-        const cA = room && room.a ? campusById(room.a) : null, cB = room && room.b ? campusById(room.b) : null;
-        const col = (camp, list) => `<div class="ar-card"><div class="ar-sec-head"><h4 style="font-size:20px">${camp ? 'PEC ' + esc(camp.name) : 'Chờ bốc thăm'}</h4><span>${list ? list.filter(Boolean).length : 0}/5</span></div>
-          ${(list || [null, null, null, null, null]).map((p, i) => `<div class="ar-roster-pair" style="padding:8px 10px"><div class="ar-rp-side">${p ? `<img src="${getAvatar(p.av).file}" alt=""><span style="font-size:17px">${esc(p.name)}</span>` : '<span style="opacity:.5;font-size:15px">Chỗ trống · bạn máy 🤖 sẽ thay</span>'}</div><span style="color:#CFE2FF;white-space:nowrap">Làn ${i + 1}</span></div>`).join('')}</div>`;
+        const cA = room && room.a, cB = room && room.b;
+        const col = (camp, list) => `<div class="ar-card"><div class="ar-sec-head"><h4 style="font-size:22px">${camp ? esc(tname(camp)) : 'Đội'}</h4><span>${list ? list.filter(p => p && p.online).length : 0}/5 đã vào</span></div>
+          ${(list || [null, null, null, null, null]).map((p, i) => `<div class="ar-roster-pair" style="padding:8px 10px"><div class="ar-rp-side">${p ? `<img src="${getAvatar(p.av).file}" alt="" style="${p.online ? '' : 'opacity:.4'}"><span style="font-size:18px">${esc(p.name)}<small style="display:block;font-size:13px;color:#CFE2FF">PEC ${esc(p.branch)}${p.online ? '' : ' · chưa vào'}</small></span>` : ''}</div><span style="color:#CFE2FF;white-space:nowrap">Làn ${i + 1}</span></div>`).join('')}</div>`;
         stage.innerHTML = `<div class="ar-wrap" style="gap:14px">
-          <div class="ar-card" style="text-align:center"><div style="font:800 20px 'Baloo 2';color:#5CE0B8">📱 Quét hoặc gõ đường link để vào phòng thi</div>
-            <div style="font:800 34px 'Baloo 2';color:#FFE680;letter-spacing:2px;margin:6px 0">#${esc(pin)}</div>
-            <div style="font:700 18px 'Baloo 2';color:#fff;word-break:break-all">${esc(joinUrl)}</div></div>
+          <div class="ar-card" style="text-align:center"><div style="font:800 24px 'Baloo 2';color:#FFE680">${room && room.label ? esc(room.label) : 'Đấu trường Bông tuyết 5vs5'}</div>
+            <div style="font:800 18px 'Baloo 2';color:#5CE0B8;margin-top:4px">📱 Các bạn có tên mở game, vào trạm Đấu trường, bấm Vào phòng thi</div>
+            <div style="font:700 16px 'Baloo 2';color:#fff;margin-top:4px">Phòng #${esc(pin)} · ${esc(joinUrl)}</div></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">${col(cA, room && room.teamA)}${col(cB, room && room.teamB)}</div></div>`;
       }
 
@@ -1898,9 +1967,9 @@
             <div class="ar-wrap">
               <div class="ar-score-hud">
                 <div class="ar-sh-top">
-                  <div class="ar-sh-team"><img src="${cA.badge}" style="width:52px;height:52px" alt=""><div><div class="tn" style="font-size:14px">ĐỘI PEC ${esc(cA.name.toUpperCase())}</div><div class="ts" style="font-size:32px">${sA.toLocaleString('vi-VN')}</div></div></div>
+                  <div class="ar-sh-team"><img src="${cA.badge}" style="width:52px;height:52px" alt=""><div><div class="tn" style="font-size:14px">${esc(tname(cA).toUpperCase())}</div><div class="ts" style="font-size:32px">${sA.toLocaleString('vi-VN')}</div></div></div>
                   <div class="ar-clock-box"><span class="ar-round-pill ${rnd >= 9 ? 'x2' : ''}">TRỰC TIẾP · LƯỢT ${rnd}/10</span><div style="font:800 13px 'Baloo 2';color:#5CE0B8;margin-top:3px">5 CẶP ĐẤU ĐỒNG THỜI</div></div>
-                  <div class="ar-sh-team r"><img src="${cB.badge}" style="width:52px;height:52px" alt=""><div><div class="tn" style="font-size:14px">ĐỘI PEC ${esc(cB.name.toUpperCase())}</div><div class="ts" style="font-size:32px">${sB.toLocaleString('vi-VN')}</div></div></div>
+                  <div class="ar-sh-team r"><img src="${cB.badge}" style="width:52px;height:52px" alt=""><div><div class="tn" style="font-size:14px">${esc(tname(cB).toUpperCase())}</div><div class="ts" style="font-size:32px">${sB.toLocaleString('vi-VN')}</div></div></div>
                 </div>
                 <div class="ar-tug" style="--ca:${cA.color};--cb:${cB.color}">
                   <div class="ar-tug-l" style="width:${Math.round((sA / Math.max(1, sA + sB)) * 100)}%"></div>
@@ -1928,9 +1997,9 @@
             <div class="ar-wrap">
               <div class="ar-card">
                 <div class="ar-sec-head"><h4>🏆 Bảng điểm trực tiếp</h4><span>${snap.final ? 'Kết thúc' : rnd ? 'Lượt ' + rnd + '/10' : 'Sắp bắt đầu'}</span></div>
-                ${snap.final ? `<div style="text-align:center;font:800 22px 'Baloo 2';color:#FFE680;margin:4px 0 8px">🏆 PEC ${esc((snap.final.winner === 'A' ? cA : cB).name)} chiến thắng!</div>` : ''}
+                ${snap.final ? `<div style="text-align:center;font:800 22px 'Baloo 2';color:#FFE680;margin:4px 0 8px">🏆 ${esc(tname(snap.final.winner === 'A' ? cA : cB))} chiến thắng!</div>` : ''}
                 <div class="ar-campus-race">
-                  ${tA.map(p => Object.assign({ c: cA }, p)).concat(tB.map(p => Object.assign({ c: cB }, p))).sort((x, y) => y.score - x.score).map((p, k) => `<div class="ar-cr-row"><img src="${p.av}" alt=""><div style="flex:1"><div style="display:flex;justify-content:space-between"><span>${k + 1}. ${esc(p.name)}</span><span style="color:#FFE680">${p.score}đ</span></div><small style="color:#CFE2FF">PEC ${esc(p.c.name)}</small></div></div>`).join('')}
+                  ${tA.map(p => Object.assign({ c: cA }, p)).concat(tB.map(p => Object.assign({ c: cB }, p))).sort((x, y) => y.score - x.score).map((p, k) => `<div class="ar-cr-row"><img src="${p.av}" alt=""><div style="flex:1"><div style="display:flex;justify-content:space-between"><span>${k + 1}. ${esc(p.name)}</span><span style="color:#FFE680">${p.score}đ</span></div><small style="color:#CFE2FF">${esc(p.branch ? 'PEC ' + p.branch : tname(p.c))}</small></div></div>`).join('')}
                 </div>
               </div>
               <div class="ar-card" style="text-align:center">
@@ -1975,56 +2044,44 @@
       const enc = v => btoa(unescape(encodeURIComponent(v))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
       const bus = createServerBus(pin, 'host', 'k.' + enc(key));
       activeBus = bus;
-      let room = null, log = 'Đang nối phòng…', score = null;
+      let room = null, log = 'Đang nối phòng…';
       const base = location.origin + location.pathname;
-      const lvNames = ['Tiểu Tinh Linh', 'Tuần Lộc', 'Ông Già Noel'];
       function paint() {
         const ph = room ? room.phase : 'lobby';
-        const opt = sel => CFG.campuses.map(c => `<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>PEC ${esc(c.name)}</option>`).join('');
-        const team = (list, camp) => `<div style="flex:1;min-width:0"><b style="color:#FFE680">${camp ? 'PEC ' + esc(campusById(camp).name) : '—'}</b>${(list || []).map((p, i) => `<div style="font-size:12.5px;color:${p && p.online ? '#fff' : '#9C93C2'}">Làn ${i + 1}: ${p ? esc(p.name) + (p.human ? (p.online ? '' : ' (mất kết nối)') : '') : '—'}</div>`).join('')}</div>`;
+        const team = (list, camp) => `<div style="flex:1;min-width:0"><b style="color:#FFE680">${camp ? esc(tname(camp)) : '—'}</b>${(list || []).map((p, i) => `<div style="font-size:12.5px;color:${p && p.online ? '#fff' : '#9C93C2'}">Làn ${i + 1}: ${p ? esc(p.name) + (p.online ? ' ✓' : ' · chưa vào') : '—'}</div>`).join('')}</div>`;
+        const online = room ? ['teamA', 'teamB'].reduce((n, k) => n + (room[k] || []).filter(p => p && p.online).length, 0) : 0;
         stage.innerHTML = `<div class="ar-wrap">
-          <div class="ar-card"><div class="ar-sec-head"><h4>🎙️ Điều khiển phòng #${esc(pin)}</h4><span>${{ lobby: 'Đang chờ', intro: 'Giới thiệu', question: 'Đang hỏi', reveal: 'Phân định', finished: 'Đã kết thúc' }[ph] || ph}</span></div>
-            <div class="ar-setup-row">
-              <label class="ar-mini-fld">Đội trái<select id="mcA">${opt(room && room.a)}</select></label>
-              <label class="ar-mini-fld">Đội phải<select id="mcB">${opt(room && room.b || CFG.campuses[1].id)}</select></label>
-            </div>
-            <label class="ar-mini-fld" style="margin-top:6px">Cấp câu hỏi<select id="mcLv">${lvNames.map((n, i) => `<option value="${i}" ${room && room.lv === i ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-              <button type="button" class="btn ghost" id="mcDraw">🎲 Bốc thăm</button>
-              <button type="button" class="btn g" id="mcSetup">Chốt cặp đấu</button>
-            </div>
-          </div>
-          <div class="ar-card"><div class="ar-sec-head"><h4>Thí sinh trong phòng</h4><span>${room ? room.viewers : 0} người đang xem</span></div>
+          <div class="ar-card"><div class="ar-sec-head"><h4>🎙️ ${room && room.label ? esc(room.label) : 'Phòng'} #${esc(pin)}</h4><span>${{ lobby: 'Đang chờ', intro: 'Giới thiệu', question: 'Đang hỏi', reveal: 'Phân định', finished: 'Đã kết thúc' }[ph] || ph}</span></div>
+            ${room && room.at ? `<p class="hint" style="margin:0 0 6px">Giờ thi: ${esc(room.at)}</p>` : ''}
             <div style="display:flex;gap:10px">${team(room && room.teamA, room && room.a)}${team(room && room.teamB, room && room.b)}</div>
+            <p class="hint" style="margin:8px 0 0">${online}/10 bạn đã vào phòng · ${room ? room.viewers : 0} người đang xem${ph === 'lobby' ? ' · bạn chưa vào lúc bắt đầu có bạn máy thi thay' : ''}</p>
             ${room && ph !== 'lobby' ? `<div style="margin-top:8px;font:800 18px 'Baloo 2';color:#FFE680;text-align:center">Lượt ${room.round}/10 · ${room.scoreA} – ${room.scoreB}</div>` : ''}
           </div>
           <div class="ar-card" style="display:grid;gap:8px">
             <button type="button" class="btn" id="mcStart" ${ph === 'lobby' && room && room.a ? '' : 'disabled'}>▶ Bắt đầu trận</button>
             <button type="button" class="btn ghost" id="mcFrost" ${ph === 'question' || ph === 'reveal' ? '' : 'disabled'}>❄️ Thả Bão Tuyết Mờ cho mọi thí sinh</button>
             <button type="button" class="btn ghost" id="mcFire">🎉 Bắn pháo tuyết lên mọi màn hình</button>
-            <button type="button" class="btn ghost" id="mcReset">↺ Làm lại phòng</button>
+            <button type="button" class="btn ghost" id="mcReset">↺ Làm lại trận (xóa điểm trận này)</button>
           </div>
           <div class="ar-card" style="font-size:12.5px;line-height:1.6">
-            <div><b>Link thí sinh:</b> ${esc(base)}?room=${esc(pin)}</div>
-            <div><b>Link khán giả:</b> ${esc(base)}?room=${esc(pin)}&role=spectator</div>
+            <div><b>Thí sinh:</b> mở game, vào trạm Đấu trường, bấm Vào phòng thi</div>
+            <div><b>Khán giả:</b> ${esc(base)}?room=${esc(pin)}&role=spectator</div>
             <div><b>Màn sân khấu:</b> ${esc(base)}?room=${esc(pin)}&view=stage</div>
           </div>
           <div id="mcLog" style="padding:8px 10px;border-radius:12px;background:rgba(0,0,0,0.28);font-size:12.5px;color:#FFE680;font-weight:700">${esc(log)}</div>
           <button type="button" class="btn ghost" id="mcOut">Thoát bảng MC trên máy này</button>
         </div>`;
         const $q = id => stage.querySelector(id);
-        $q('#mcDraw').onclick = () => { const pr = shuffle(CFG.campuses).slice(0, 2); $q('#mcA').value = pr[0].id; $q('#mcB').value = pr[1].id; B.jingle(); };
-        $q('#mcSetup').onclick = () => bus.send({ t: 'setup', a: $q('#mcA').value, b: $q('#mcB').value, lv: +$q('#mcLv').value });
         $q('#mcStart').onclick = () => bus.send({ t: 'start' });
         $q('#mcFrost').onclick = () => { bus.send({ t: 'frost' }); setLog('Đã thả Bão Tuyết Mờ'); };
         $q('#mcFire').onclick = () => { bus.send({ t: 'confetti' }); ['❄️', '❤️', '⭐'].forEach((em, k) => later(() => bus.send({ t: 'cheer', side: k % 2 ? 'A' : 'B', emoji: em }), k * 150)); };
-        $q('#mcReset').onclick = () => bus.send({ t: 'reset' });
+        $q('#mcReset').onclick = () => { if (room && room.phase !== 'lobby' && room.phase !== 'finished' && !confirm('Trận đang diễn ra. Làm lại sẽ xóa điểm trận này?')) return; bus.send({ t: 'reset' }); };
         $q('#mcOut').onclick = () => { try { sessionStorage.removeItem('pec-arena-mc'); } catch (e) {} bus.close(); activeBus = null; renderLiveHost(pin); };
       }
       const setLog = t => { log = t; const el = document.getElementById('mcLog'); if (el) el.textContent = t; };
       bus.onStatus(st => {
         if (st === 'open') setLog('Đã nối phòng #' + pin);
-        else if (st === 'denied') { try { sessionStorage.removeItem('pec-arena-mc'); } catch (e) {} setLog('Khóa không đúng hoặc phòng chưa mở. Thoát ra nhập lại khóa.'); }
+        else if (st === 'denied') { try { sessionStorage.removeItem('pec-arena-mc'); } catch (e) {} setLog('Khóa không đúng hoặc mã phòng không có trong danh sách bốc thăm. Thoát ra nhập lại.'); }
         else if (st === 'retry') setLog('Mạng chập chờn, đang nối lại…');
         else if (st === 'fail') setLog('Không nối được phòng. Tải lại trang để thử lại.');
       });
@@ -2097,6 +2154,7 @@
     else if (launchOpts && launchOpts.view === 'host') renderHostDirectorView(roomPin);
     else if (launchOpts && launchOpts.role === 'spectator') renderSpectatorView(roomPin);
     else if (launchOpts && launchOpts.room) renderLiveRoom(roomPin);
+    else if (canGoLive(B)) renderArenaHub();
     else renderLobby();
   }
 
