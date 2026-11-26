@@ -9,10 +9,11 @@ Game web mùa Noel 2026 của Trung tâm Ngoại ngữ và Du học PEC: trẻ t
 
 | Đường dẫn | Nội dung |
 | --- | --- |
-| `index.html` | Toàn bộ game: giao diện, 3 trạm cấp Kids, vé, điểm, kẹo, bảng xếp hạng, đổi quà |
-| `logo-pec.png` | Logo PEC |
-| `assets/` | Hình do người thiết kế vẽ (nền, công trình, linh vật, biểu tượng…), tên file theo tài liệu yêu cầu thiết kế |
-| `design/` | Ảnh khung bản đồ, ảnh bản hiện tại, tờ trình kế hoạch gửi BGĐ |
+| `public/` | Phần được đưa lên mạng — chỉ để file của game ở đây |
+| `public/index.html` | Toàn bộ game: giao diện, 3 trạm cấp Kids, vé, điểm, kẹo, bảng xếp hạng, đổi quà |
+| `public/logo-pec.png` | Logo PEC |
+| `public/assets/` | Hình do người thiết kế vẽ (nền, công trình, linh vật, biểu tượng…), tên file theo tài liệu yêu cầu thiết kế |
+| `design/` | Tài liệu nội bộ, không đưa lên mạng: ảnh khung bản đồ, ảnh bản hiện tại, tờ trình kế hoạch gửi BGĐ |
 
 ## Phân việc
 
@@ -31,8 +32,8 @@ Game web mùa Noel 2026 của Trung tâm Ngoại ngữ và Du học PEC: trẻ t
 
 ## Xem thử trên máy
 
-Mở `index.html` bằng trình duyệt. Điểm và kẹo trong bản chạy thử lưu trên máy đang chơi; bảng xếp hạng đang dùng dữ liệu mẫu.
+Mở `public/index.html` bằng trình duyệt. Điểm và kẹo trong bản chạy thử lưu trên máy đang chơi; bảng xếp hạng đang dùng dữ liệu mẫu.
 
 ## Đưa lên mạng
 
-Dự kiến dùng Cloudflare Pages giống Word Battle: nối kho này vào Cloudflare, mỗi lần nhánh `main` có thay đổi thì trang tự cập nhật.
+Game chạy trên Cloudflare Pages, dự án `lang-giang-sinh-pec`, địa chỉ https://lang-giang-sinh-pec.pages.dev. Mỗi lần nhánh `main` có thay đổi, Cloudflare tự triển khai lại thư mục `public/` (không có bước build). Tài liệu nội bộ để ngoài `public/` nên không lên mạng.
