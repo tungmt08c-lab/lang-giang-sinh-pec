@@ -1,0 +1,30 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <!-- Editable Vector Master Sheet: Station Buildings st-talk, st-letter, st-arena (390x390 frames, pedestal at y=366) -->
+  <g id="st-talk" transform="translate(0,0)">
+    <ellipse cx="195" cy="360" rx="158" ry="20" fill="#6C7CBC" opacity="0.3"/>
+    <ellipse cx="195" cy="344" rx="150" ry="26" fill="#DCE7FB" stroke="#3B1F2B" stroke-width="7.5"/>
+    <rect x="56" y="78" width="278" height="222" rx="20" fill="#3A1E6E" stroke="#3B1F2B" stroke-width="7.5"/>
+    <polygon points="195,86 112,296 278,296" fill="#FFE880" opacity="0.4"/>
+    <rect x="46" y="74" width="298" height="36" rx="12" fill="#FFD525" stroke="#3B1F2B" stroke-width="7.5"/>
+    <rect x="40" y="56" width="310" height="28" rx="14" fill="#FFFFFF" stroke="#3B1F2B" stroke-width="7.5"/>
+    <rect x="176" y="148" width="38" height="56" rx="19" fill="#FFD525" stroke="#3B1F2B" stroke-width="7.5"/>
+    <rect x="38" y="292" width="314" height="44" rx="14" fill="#D98F50" stroke="#3B1F2B" stroke-width="7.5"/>
+  </g>
+  <g id="st-letter" transform="translate(400,0)">
+    <ellipse cx="195" cy="360" rx="150" ry="20" fill="#6C7CBC" opacity="0.3"/>
+    <ellipse cx="195" cy="344" rx="144" ry="26" fill="#DCE7FB" stroke="#3B1F2B" stroke-width="7.5"/>
+    <rect x="82" y="150" width="226" height="186" rx="18" fill="#E73236" stroke="#3B1F2B" stroke-width="7.5"/>
+    <polygon points="56,168 195,52 334,168" fill="#9E1119" stroke="#3B1F2B" stroke-width="7.5"/>
+    <polyline points="52,170 195,48 338,170" fill="none" stroke="#3B1F2B" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="52,170 195,48 338,170" fill="none" stroke="#EEF4FF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="121" y="146" width="148" height="50" rx="14" fill="#FFD525" stroke="#3B1F2B" stroke-width="7.5"/>
+    <text x="195" y="182" text-anchor="middle" font-family="Baloo 2, Arial Rounded MT Bold, sans-serif" font-weight="800" font-size="32" fill="#9E1119">POST</text>
+    <rect x="139" y="248" width="112" height="72" rx="10" fill="#FFF4DE" stroke="#3B1F2B" stroke-width="5.5"/>
+  </g>
+  <g id="st-arena" transform="translate(800,0)">
+    <ellipse cx="195" cy="360" rx="166" ry="20" fill="#6C7CBC" opacity="0.3"/>
+    <ellipse cx="195" cy="344" rx="160" ry="26" fill="#DCE7FB" stroke="#3B1F2B" stroke-width="7.5"/>
+    <ellipse cx="195" cy="212" rx="147" ry="48" fill="#BDE2FA" stroke="#3B1F2B" stroke-width="7.5"/>
+    <path d="M48 211 V282 A147 49 0 0 0 342 282 V211 A147 47 0 0 1 48 211 Z" fill="#93C6F0" stroke="#3B1F2B" stroke-width="7.5"/>
+  </g>
+</svg>

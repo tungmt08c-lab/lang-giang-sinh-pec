@@ -1,0 +1,38 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 2628" width="1080" height="2628">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#120A35"/>
+      <stop offset="42%" stop-color="#2C1A6A"/>
+      <stop offset="74%" stop-color="#6B2F8E"/>
+      <stop offset="100%" stop-color="#D0609A"/>
+    </linearGradient>
+    <linearGradient id="snow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E9EFFD"/>
+      <stop offset="52%" stop-color="#C9D5F2"/>
+      <stop offset="100%" stop-color="#A9B6E6"/>
+    </linearGradient>
+  </defs>
+  <g id="Layer-Sky">
+    <rect width="1080" height="810" fill="url(#sky)"/>
+    <circle cx="900" cy="410" r="88" fill="#FFF6CF"/>
+  </g>
+  <g id="Layer-Ground">
+    <path d="M0 776 C260 716 540 770 790 756 C920 748 1010 740 1080 748 V2628 H0 Z" fill="url(#snow)"/>
+  </g>
+  <g id="Layer-Road-66px">
+    <polyline points="264,2628 300,2394 786,2154 312,1926 804,1710 294,1494 786,1296 498,1116"
+      fill="none" stroke="#E8F0FF" stroke-width="86" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="264,2628 300,2394 786,2154 312,1926 804,1710 294,1494 786,1296 498,1116"
+      fill="none" stroke="#3B1F2B" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+    <polyline points="264,2628 300,2394 786,2154 312,1926 804,1710 294,1494 786,1296 498,1116"
+      fill="none" stroke="#D9C8AC" stroke-width="66" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="Guide-Pedestals-HideBeforeExport" opacity="0.5">
+    <circle cx="300" cy="2394" r="14" fill="#E73236"/><circle cx="786" cy="2154" r="14" fill="#E73236"/>
+    <circle cx="312" cy="1926" r="14" fill="#E73236"/><circle cx="804" cy="1710" r="14" fill="#E73236"/>
+    <circle cx="294" cy="1494" r="14" fill="#E73236"/><circle cx="786" cy="1296" r="14" fill="#E73236"/>
+    <circle cx="498" cy="1116" r="14" fill="#E73236"/>
+    <rect x="0" y="0" width="1080" height="320" fill="#E73236" opacity="0.15"/>
+    <rect x="0" y="320" width="840" height="300" fill="#FFD525" opacity="0.15"/>
+  </g>
+</svg>
