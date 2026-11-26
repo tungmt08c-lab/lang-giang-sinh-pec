@@ -190,6 +190,10 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
 .x{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font:800 22px/1 'Baloo 2',sans-serif;border:2.5px solid #fff;background:radial-gradient(circle at 35% 28%,#FF9DA0,#E73236 55%,#A3121A);box-shadow:0 3px 0 #6E0A10}
 .fld{display:block;margin-bottom:10px;font-size:13px;color:#E4DCFF;font-weight:700}
 .fld input,.fld select{display:block;width:100%;margin-top:4px;min-height:46px;border-radius:14px;border:2.5px solid rgba(255,255,255,.6);background:#20145A;color:#fff;font:16px 'Be Vietnam Pro',system-ui,sans-serif;padding:8px 12px}
+.srv-only{display:none!important}body.srv .srv-only{display:block!important}body.srv .sample{display:none}
+.codes .myid{display:block!important}
+.myid{background:rgba(255,255,255,.1);border-radius:14px;padding:8px 10px;margin-bottom:10px;font-size:12.5px;line-height:1.45;color:#E4DCFF}.myid b{color:#FFE680;letter-spacing:1px}
+.codes .used{opacity:.55;text-decoration:line-through}
 .ck{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#E4DCFF;margin:4px 0 12px}
 .ck input{width:22px;height:22px;flex:none;accent-color:#E73236;margin:0}
 .seg{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
@@ -303,10 +307,22 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-rad
     <label class="fld">Tên gọi của bé<input id="fName" maxlength="20" autocomplete="off" required></label>
     <label class="fld">Cấp chơi<select id="fLv"><option value="0">Tiểu Tinh Linh · mẫu giáo đến lớp 3</option><option value="1">Tuần Lộc · lớp 4 đến lớp 7</option><option value="2">Ông Già Noel · lớp 8 trở lên</option></select></label>
     <label class="fld">Trường của bé<input id="fSchool" maxlength="40" autocomplete="off"></label>
+    <label class="fld" id="phoneF">Số điện thoại phụ huynh<input id="fPhone" type="tel" inputmode="numeric" maxlength="13" autocomplete="tel"></label>
     <label class="fld">Cơ sở PEC gần nhà<select id="fBr"><option>Lạch Tray</option><option>Tô Hiệu</option><option>Vinhomes Imperia</option><option>Đà Nẵng</option><option>Thủy Nguyên</option></select></label>
     <label class="ck"><input type="checkbox" id="fOk">Tôi là phụ huynh và đồng ý để PEC lưu thông tin này cho chương trình Làng Giáng Sinh</label>
-    <p class="sub" style="margin-top:-4px">Bản chính thức có thêm số điện thoại phụ huynh. Bản chạy thử chỉ lưu trên máy này.</p>
-    <button class="btn g" style="width:100%">Bắt đầu chơi</button>
+    <label class="fld srv-only">Mã bạn mời (nếu có)<input id="fRef" maxlength="6" autocomplete="off" style="text-transform:uppercase"></label>
+    <p class="sub" id="regNote" style="margin-top:-4px">Bản chạy thử chỉ lưu trên máy này, chưa gửi thông tin đi đâu.</p>
+    <button class="btn g" id="regBtn" style="width:100%">Bắt đầu chơi</button>
+    <button type="button" class="lk srv-only" id="toLogin" style="margin:12px auto 0;text-align:center">Đã đăng ký trên máy khác? Vào lại bằng mã của bé</button>
+  </form>
+</div>
+
+<div class="ov" id="login" role="dialog" aria-modal="true" aria-labelledby="lgT">
+  <form class="panel" id="lgF" novalidate>
+    <div class="phead"><div><h3 class="g ol" id="lgT">Vào lại tài khoản của bé</h3><p class="sub">Nhập số điện thoại phụ huynh và mã 6 ký tự của bé. Mã nằm trong mục Đổi quà trên máy đã đăng ký.</p></div><button type="button" class="x" data-close aria-label="Đóng">×</button></div>
+    <label class="fld">Số điện thoại phụ huynh<input id="lPhone" type="tel" inputmode="numeric" maxlength="13" autocomplete="tel"></label>
+    <label class="fld">Mã của bé<input id="lCode" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:3px"></label>
+    <button class="btn g" id="lgBtn" style="width:100%">Vào chơi</button>
   </form>
 </div>
 
@@ -371,7 +387,9 @@ function refresh(){
   const h=$('#hello');
   h.innerHTML=S.profile?`<b>${esc(S.profile.name)}</b> · ${LV[S.profile.lv]} · ${streak()} ngày liên tiếp${S.zalo?'':'<br><button class="lk" id="zBtn">Vào nhóm Zalo phụ huynh: +2 vé</button>'}`
     :`<button class="lk" id="rBtn">Đăng ký để lưu điểm, đổi quà</button>`;
-  const z=$('#zBtn');if(z)z.onclick=()=>{S.zalo=true;S.day.tk+=2;save();refresh();jingle();toast('+2 vé! Bản chính thức sẽ mở nhóm Zalo phụ huynh PEC')};
+  const z=$('#zBtn');if(z)z.onclick=()=>{
+    if(SRV){if(ZALO_URL)window.open(ZALO_URL,'_blank','noopener');api('zalo',{}).then(r=>{applyState(r.state);jingle();toast(ZALO_URL?'+2 vé! Cảm ơn bố mẹ đã vào nhóm Zalo PEC':'+2 vé! Tư vấn viên PEC sẽ mời bố mẹ vào nhóm Zalo phụ huynh')}).catch(e=>toast(e.message));return}
+    S.zalo=true;S.day.tk+=2;save();refresh();jingle();toast('+2 vé! Bản chính thức sẽ mở nhóm Zalo phụ huynh PEC')};
   const r=$('#rBtn');if(r)r.onclick=()=>openReg();
   $('.gc').textContent=Math.min(S.gifts,GOAL);
   $('.bar3 i').style.width=Math.min(100,S.gifts/GOAL*100)+'%';
@@ -379,10 +397,10 @@ function refresh(){
   if($('#bubble'))mascotSay();
 }
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const dkey=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-function ensureDay(){const k=dkey();if(!S.day||S.day.date!==k){S.day={date:k,tk:TK,pts:0,candy:0,box:false,s3:false,s7:false};save()}}
-function streak(){const d=new Date();if(!(S.days[dkey(d)]>0))d.setDate(d.getDate()-1);let n=0;while(S.days[dkey(d)]>0){n++;d.setDate(d.getDate()-1)}return n}
-const season=()=>Object.keys(S.days).reduce((a,k)=>a+(S.days[k]||0),0);
+const dkey=(d=new Date())=>new Date(d.getTime()+7*3600e3).toISOString().slice(0,10); // luôn theo giờ Việt Nam, khớp với máy chủ
+function ensureDay(){const k=dkey();if(!S.day||S.day.date!==k){const had=!!S.day;S.day={date:k,tk:TK,pts:0,candy:0,box:false,s3:false,s7:false};save();if(had)setTimeout(sync,0)}}
+function streak(){if(SRV&&S.profile&&S.srv)return S.srv.streak;const d=new Date();if(!(S.days[dkey(d)]>0))d.setDate(d.getDate()-1);let n=0;while(S.days[dkey(d)]>0){n++;d.setDate(d.getDate()-1)}return n}
+const season=()=>SRV&&S.profile&&S.srv?S.srv.season:Object.keys(S.days).reduce((a,k)=>a+(S.days[k]||0),0);
 function addPts(p){S.day.pts+=p;S.days[S.day.date]=(S.days[S.day.date]||0)+p;let msg='';const sk=streak();
   if(sk>=3&&!S.day.s3&&sk===3){S.day.s3=true;S.day.pts+=100;S.days[S.day.date]+=100;msg='Chơi 3 ngày liền: +100 điểm!'}
   if(sk>=7&&!S.day.s7&&sk===7){S.day.s7=true;S.day.pts+=300;S.days[S.day.date]+=300;msg='Chơi 7 ngày liền: +300 điểm!'}
@@ -392,6 +410,30 @@ function gain(){
   if(MODE==='scored'){S.gifts++;if(S.day.candy<CANDY_CAP){S.day.candy++;S.candy++;RC++}}
   else if(MODE==='trial')S.gifts++;
   save();refresh()}
+/* ================= MÁY CHỦ ================= */
+// Có máy chủ (Cloudflare) thì lưu điểm thật; không có (bản xem thử) thì chạy cục bộ như cũ
+let SRV=false,ROUND=null;
+const ZALO_URL='';
+function api(path,body){
+  const h={'content-type':'application/json'};
+  if(S.profile&&S.profile.token)h.authorization='Bearer '+S.profile.token;
+  const ctl=window.AbortController?new AbortController():null,tm=ctl?setTimeout(()=>ctl.abort(),9000):0;
+  return fetch('/api/'+path,{method:body?'POST':'GET',headers:h,body:body?JSON.stringify(body):undefined,signal:ctl?ctl.signal:undefined,cache:'no-store'})
+    .then(r=>r.json().catch(()=>({})).then(j=>{clearTimeout(tm);if(!r.ok){const e=new Error(j.error||'Máy chủ đang bận, thử lại nhé');e.status=r.status;throw e}return j}),
+      e=>{clearTimeout(tm);const x=new Error('Mạng chập chờn, thử lại nhé');x.status=0;throw x})
+    .catch(e=>{if(e.status===401&&path!=='login'&&S.profile&&S.profile.token){S.profile=null;save();refresh();openReg('Phiên chơi đã hết, bố mẹ đăng nhập lại bằng số điện thoại và mã của bé nhé.')}throw e});
+}
+function applyState(st,tok){
+  const t=tok||(S.profile&&S.profile.token);
+  S.profile=Object.assign({},st.profile,{token:t});
+  S.candy=st.candy;S.zalo=st.zalo;S.codes=st.codes||[];S.srv={streak:st.streak,season:st.season};
+  S.day=Object.assign({s3:true,s7:true},st.day);
+  save();refresh();
+}
+let syncing=false;
+function sync(){if(!SRV||!S.profile||!S.profile.token||syncing)return Promise.resolve();syncing=true;
+  return api('me').then(r=>{applyState(r.state);if(r.msg){toast(r.msg);jingle()}}).catch(()=>{}).then(()=>{syncing=false})}
+
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2500)}
 
 /* ================= ÂM THANH (MP3 CHUẨN CHO ZALO & SAFARI iOS + DỰ PHÒNG TTS) ================= */
@@ -578,10 +620,15 @@ function openStation(i){
   if(m==='reg'){openReg('Bé đã chơi thử trạm này rồi. Đăng ký để chơi tiếp, lưu điểm và nhận kẹo gậy.');return}
   giftFx(s.name,()=>enter(s,m));
 }
-function enter(s,m){
+async function enter(s,m){
   m=m||access(s);if(m==='reg'){goHome();openReg();return}
+  ROUND=null;
+  if(SRV&&m==='scored'){
+    try{const r=await api('round/start',{station:s.id});applyState(r.state);if(r.mode==='scored')ROUND=r.round;else m='practice'}
+    catch(e){toast(e.message+' · lượt này chơi luyện tập');m='practice'}
+  }
   MODE=m;RC=0;
-  if(m==='scored')S.day.tk--;if(m==='trial')S.trial[s.id]=true;save();refresh();
+  if(m==='scored'&&!SRV)S.day.tk--;if(m==='trial')S.trial[s.id]=true;save();refresh();
   const md=$('#mode');md.className='mode'+(m==='scored'?'':' pr');
   md.textContent=m==='scored'?`Lượt tính điểm · còn ${S.day.tk} vé hôm nay`:m==='practice'?'Luyện tập · hết vé hôm nay, không tính điểm':'Chơi thử · đăng ký để lưu điểm và kẹo';
   cur=s;$('#home').style.display='none';$('#play').style.display='flex';$('#play').className='th-'+s.id;garland(s.id);
@@ -591,10 +638,17 @@ function enter(s,m){
 }
 function goHome(){if(cleanup){cleanup();cleanup=null}tipI=0;stopSpeak();$('#play').style.display='none';$('#home').style.display='flex';$('#result').classList.remove('show');refresh();fitStationLabels()}
 function steps(n,at){$('#steps').innerHTML=Array.from({length:n},(_,i)=>`<i class="${i<at?'ok':i===at?'now':''}"></i>`).join('')}
-function finish(pts,text){
-  pts=Math.max(0,Math.min(100,Math.round(pts)));const stars=pts>=90?3:pts>=60?2:1;
-  const id=cur.id;S.best[id]=Math.max(S.best[id]||0,pts);let bonus='';
-  if(MODE==='scored')bonus=addPts(pts);save();refresh();
+async function finish(pts,text){
+  pts=Math.max(0,Math.min(100,Math.round(pts)));
+  let bonus='',rk=null,lost=false;
+  if(MODE==='scored'&&SRV){
+    if(ROUND){try{const r=await api('round/finish',{round:ROUND,pts,candy:RC});pts=r.pts;RC=r.candy;bonus=r.bonus;rk={rank:r.rank,need:r.need};applyState(r.state)}catch(e){lost=true;toast('Chưa lưu được điểm: '+e.message)}}
+    else lost=true;
+    ROUND=null;
+  }
+  const stars=pts>=90?3:pts>=60?2:1;
+  const id=cur.id;S.best[id]=Math.max(S.best[id]||0,pts);
+  if(MODE==='scored'&&!SRV)bonus=addPts(pts);save();refresh();
   $('#rt').textContent=stars===3?'Xuất sắc!':stars===2?'Giỏi quá!':'Cố lên nào!';
   $('#rstars').innerHTML=[1,2,3].map(k=>`<img class="${k<=stars?'':'off'}" src="assets/ic-star.png" alt="">`).join('');
   $('#rmasc').src='assets/mascot-'+(stars>=2?'happy':'oops')+'.png';
@@ -605,7 +659,8 @@ function finish(pts,text){
   else meta='<span>Lượt chơi thử, chưa lưu điểm</span>';
   $('#rmeta').innerHTML=meta;
   let line=text;
-  if(MODE==='scored'){const b=board('season','all');line+=`. Bé đang hạng ${b.rank} toàn hệ thống`+(b.need?`, cần thêm ${b.need} điểm để vượt lên hạng ${b.rank-1}`:'')+'.';
+  if(MODE==='scored'&&lost)line+='. Mạng chập chờn nên điểm lượt này chưa được lưu.';
+  else if(MODE==='scored'){const b=SRV?rk:board('season','all');line+=`. Bé đang hạng ${b.rank} toàn hệ thống`+(b.need?`, cần thêm ${b.need} điểm để vượt lên hạng ${b.rank-1}`:'')+'.';
     if(S.day.candy>=CANDY_CAP)line+=' Bé đã nhận đủ 20 kẹo hôm nay.';if(bonus)line+=' '+bonus;if(S.day.tk===0)line+=' Hết vé hôm nay, sáng mai bé có 5 vé mới.'}
   else if(MODE==='practice')line+='. Sáng mai bé có 5 vé mới để tính điểm.';
   else line+='. Đăng ký để lưu điểm, nhận kẹo và đổi quà.';
@@ -852,11 +907,28 @@ function Sled(){
 /* ================= ĐĂNG KÝ ================= */
 function openReg(msg){
   $('#regSub').textContent=msg||'Để lưu điểm, nhận kẹo gậy, lên bảng xếp hạng và đổi quà tại cơ sở PEC';
+  $('#regNote').textContent=SRV?'Mỗi số điện thoại đăng ký tối đa 3 bé. Bảng xếp hạng chỉ hiện tên gọi và trường của bé.':'Bản chạy thử chỉ lưu trên máy này, chưa gửi thông tin đi đâu.';
+  $('#phoneF').style.display=SRV?'':'none';
   $('#reg').classList.add('show');setTimeout(()=>$('#fName').focus(),50)}
+$('#toLogin').onclick=()=>{$('#reg').classList.remove('show');$('#login').classList.add('show');setTimeout(()=>$('#lPhone').focus(),50)};
+$('#lgF').addEventListener('submit',e=>{e.preventDefault();const btn=$('#lgBtn');if(btn.disabled)return;btn.disabled=true;
+  api('login',{phone:$('#lPhone').value,code:$('#lCode').value.trim().toUpperCase()}).then(r=>{
+    S.trial={};applyState(r.state,r.token);$('#login').classList.remove('show');jingle();toast(`Chào ${S.profile.name}! Hôm nay bé còn ${S.day.tk} vé`)})
+  .catch(err=>toast(err.message)).then(()=>{btn.disabled=false})});
 $('#regF').addEventListener('submit',e=>{e.preventDefault();
   const name=$('#fName').value.trim();
   if(!name){$('#fName').focus();toast('Nhập tên gọi của bé');return}
   if(!$('#fOk').checked){toast('Phụ huynh cần đánh dấu đồng ý');return}
+  if(SRV){
+    const btn=$('#regBtn');if(btn.disabled)return;btn.disabled=true;
+    api('register',{name,lv:+$('#fLv').value,school:$('#fSchool').value.trim(),branch:$('#fBr').value,phone:$('#fPhone').value,ref:$('#fRef').value.trim().toUpperCase(),consent:true})
+    .then(r=>{applyState(r.state,r.token);$('#reg').classList.remove('show');jingle();
+      toast(`Chào ${name}! Mã của bé là ${S.profile.code}, bố mẹ giữ lại để vào trên máy khác`);
+      if(r.msg)setTimeout(()=>toast(r.msg),3000);
+      if(S.profile.lv!==0)setTimeout(()=>toast('Trạm cấp Tuần Lộc và Ông Già Noel mở từ 14/12, bé chơi trạm Kids trước nhé'),r.msg?6000:3200)})
+    .catch(err=>toast(err.message)).then(()=>{btn.disabled=false});
+    return;
+  }
   S.profile={name,lv:+$('#fLv').value,school:$('#fSchool').value.trim()||'Chưa nhập trường',branch:$('#fBr').value};
   ensureDay();save();refresh();$('#reg').classList.remove('show');jingle();
   toast(`Chào ${name}! Hôm nay bé có ${S.day.tk} vé tính điểm`);
@@ -879,6 +951,19 @@ function board(tab,scope){
   return{rows,rank,need:above?above.sc-mine.sc+1:0}}
 let BT='day',BS='all';
 function drawBoard(){
+  if(SRV){
+    $('#bSub').textContent=(S.profile?LV[S.profile.lv]:'Tiểu Tinh Linh')+' · '+(BT==='day'?'làm mới mỗi ngày, top 3 nhận thêm 5 kẹo':'cộng dồn từ 14/12 đến 25/12');
+    if(!S.profile){$('#bList').innerHTML='';$('#bGap').textContent='Đăng ký để có tên trên bảng xếp hạng';return}
+    $('#bList').innerHTML='<li class="dots">Đang tải…</li>';$('#bGap').textContent='';const want=BT+BS;
+    api('board?tab='+BT+'&scope='+BS).then(b=>{if(want!==BT+BS)return;
+      const li=(x,i)=>`<li class="${x.me?'me':''}"><span class="rk">${i}</span><span>${esc(x.name)}${x.me?' (bé)':''}<small>${esc(x.sub)}</small></span><span class="sc">${x.sc}</span></li>`;
+      let html=b.rows.map((x,i)=>li(x,i+1)).join('');
+      if(b.mine&&b.rank>b.rows.length){if(b.rank>b.rows.length+1)html+='<li class="dots">···</li>';html+=li({name:S.profile.name,sub:BS==='school'?S.profile.school:'Cơ sở '+S.profile.branch,sc:b.mine,me:true},b.rank)}
+      $('#bList').innerHTML=html||'<li class="dots">Chưa có bé nào ghi điểm, bé chơi để dẫn đầu nhé!</li>';
+      $('#bGap').textContent=!b.mine?'Bé chơi một lượt tính điểm để lên bảng nhé':b.rank===1?'Bé đang dẫn đầu, giữ vững nhé!':`Bé hạng ${b.rank}, cần thêm ${b.need} điểm để vượt lên hạng ${b.rank-1}`;
+    }).catch(e=>{$('#bList').innerHTML='';$('#bGap').textContent=e.message});
+    return;
+  }
   const b=board(BT,BS);
   $('#bSub').textContent=(S.profile?LV[S.profile.lv]:'Tiểu Tinh Linh')+' · '+(BT==='day'?'làm mới mỗi ngày, top 3 nhận thêm 5 kẹo':'cộng dồn từ 14/12 đến 25/12');
   const li=(x,i)=>`<li class="${x.me?'me':''}"><span class="rk">${i+1}</span><span>${esc(x.name)}${x.me?' (bé)':''}<small>${esc(x.sub)}</small></span><span class="sc">${x.sc}</span></li>`;
@@ -896,23 +981,26 @@ const GIFT_IC={pen:'<img src="assets/prize-pen.png" alt="Bút">',book:'<img src=
 function drawShop(){
   $('#sSub').textContent=`Bé có ${S.candy} kẹo gậy · hôm nay đã nhận ${S.day.candy}/${CANDY_CAP} kẹo`;
   $('#tiers').innerHTML=TIERS.map((tier,i)=>{const need=tier[0],name=tier[1],ic=tier[2];return `<div class="tier"><div class="gi">${GIFT_IC[ic]}</div><div><b>${name}</b><span>${need} kẹo gậy</span><div class="bar2"><i style="width:${Math.min(100,S.candy/need*100)}%"></i></div></div><button class="btn g" data-tier="${i}" ${S.profile&&S.candy>=need?'':'disabled'}>Lấy mã</button></div>`}).join('');
-  $('#codes').innerHTML=S.codes.length?'<b style="color:#fff">Mã đổi quà của bé</b> · mang đến quầy lễ tân 1 trong 5 cơ sở PEC'+S.codes.map(c=>`<div><span>${esc(c.gift)} · ${esc(c.date)}</span><span class="code">${esc(c.code)}</span></div>`).join('')
-    :(S.profile?'Đủ kẹo thì bấm Lấy mã, phụ huynh mang mã đến quầy lễ tân để nhận quà.':'Đăng ký để tích kẹo và đổi quà thật tại cơ sở PEC.');
+  const me=SRV&&S.profile&&S.profile.code?`<div class="myid">Mã của bé: <b>${esc(S.profile.code)}</b> · bố mẹ giữ riêng để vào lại trên máy khác<br>Mã mời bạn: <b>${esc(S.profile.ref)}</b> · bạn nhập khi đăng ký, cả hai được +1 vé</div>`:'';
+  $('#codes').innerHTML=me+(S.codes.length?'<b style="color:#fff">Mã đổi quà của bé</b> · mang đến quầy lễ tân 1 trong 5 cơ sở PEC'+S.codes.map(c=>`<div><span>${esc(c.gift)} · ${esc(c.date)}</span><span class="code${c.used?' used':''}">${esc(c.code)}</span></div>`).join('')
+    :(S.profile?'Đủ kẹo thì bấm Lấy mã, phụ huynh mang mã đến quầy lễ tân để nhận quà.':'Đăng ký để tích kẹo và đổi quà thật tại cơ sở PEC.'));
 }
 $('#tiers').onclick=e=>{const b=e.target.closest('[data-tier]');if(!b||b.disabled)return;const tier=TIERS[+b.dataset.tier],need=tier[0],name=tier[1];
+  if(SRV){b.disabled=true;api('redeem',{tier:+b.dataset.tier}).then(r=>{applyState(r.state);drawShop();jingle();confettiAt(b,24);toast(`Mã đổi ${r.gift}: ${r.code}`)}).catch(err=>{b.disabled=false;toast(err.message)});return}
   const code='PEC-'+Array.from({length:5},()=>'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.random()*31|0]).join('');
   S.candy-=need;S.codes.unshift({code,gift:name,date:new Date().toLocaleDateString('vi-VN')});save();refresh();drawShop();jingle();confettiAt(b,24);toast(`Mã đổi ${name}: ${code}`)};
-$('#qShop').onclick=()=>{drawShop();$('#shop').classList.add('show')};
+$('#qShop').onclick=()=>{drawShop();$('#shop').classList.add('show');if(SRV&&S.profile)sync().then(()=>{if($('#shop').classList.contains('show'))drawShop()})};
 
 /* ================= HỘP QUÀ HÔM NAY ================= */
 $('#qDaily').onclick=()=>{
   unlockAudio();
   if(!S.profile){openReg('Đăng ký để mở hộp quà mỗi ngày: +1 vé và +50 điểm');return}
   ensureDay();if(S.day.box){toast('Bé đã mở hộp quà hôm nay. Ngày mai quay lại mở hộp mới nhé!');return}
+  if(SRV){api('box',{}).then(r=>giftFx('+1 vé · +50 điểm',()=>{applyState(r.state);ding();confetti(innerWidth/2,innerHeight/2,30);toast(r.msg)})).catch(e=>toast(e.message));return}
   giftFx('+1 vé · +50 điểm',()=>{S.day.box=true;S.day.tk++;const m=addPts(50);refresh();ding();confetti(innerWidth/2,innerHeight/2,30);toast(m||'Bé nhận được 1 vé và 50 điểm!')})};
 $$('[data-close]').forEach(b=>b.onclick=()=>b.closest('.ov').classList.remove('show'));
-$$('#reg,#board,#shop').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')}));
-addEventListener('keydown',e=>{if(e.key==='Escape')$$('#reg,#board,#shop').forEach(o=>o.classList.remove('show'))});
+$$('#reg,#login,#board,#shop').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')}));
+addEventListener('keydown',e=>{if(e.key==='Escape')$$('#reg,#login,#board,#shop').forEach(o=>o.classList.remove('show'))});
 
 /* ================= TUYẾT RƠI ================= */
 (()=>{const c=$('#snowfx'),x=c.getContext('2d');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -927,6 +1015,11 @@ $('#ragain').onclick=()=>{unlockAudio();$('#result').classList.remove('show');if
 $('.mute').onclick=()=>{unlockAudio();S.mute=!S.mute;if(S.mute)stopSpeak();save();refresh();if(!S.mute)ding()};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!b.onclick){unlockAudio();speak(b.dataset.say)}});
 ensureDay();drawMap();countdown();refresh();
+fetch('/api/ping',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.ok)return;
+  SRV=true;document.body.classList.add('srv');$('.note').textContent='3 trạm Kids mở trước · các trạm khác mở dần từ 14/12';
+  if(S.profile&&!S.profile.token){S.profile=null;S.codes=[];S.candy=0;S.days={};S.day=null;S.zalo=false;ensureDay();save()}
+  refresh();sync()}).catch(()=>{});
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync()});
 const msc=$('#mascot');msc.onclick=()=>{unlockAudio();mascotSay(true);msc.src='assets/mascot-happy.png';clearTimeout(msc._t);msc._t=setTimeout(()=>msc.src='assets/mascot-hello.png',1600);tone(1046,.12,'triangle',.08);tone(1318,.15,'triangle',.07,.08);speak('Merry Christmas!',.9)};
 msc.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();msc.onclick()}});
 })();

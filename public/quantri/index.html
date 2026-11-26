@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Theo dõi · Làng Giáng Sinh PEC</title>
+<style>
+:root{--bg:#1E1A33;--card:#2A2445;--line:#443B66;--tx:#ECE8F7;--mu:#A9A1C6;--gold:#F2C94C;--grn:#3FB37A}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;padding:24px 16px}
+.w{max-width:980px;margin:0 auto}
+h1{font-size:22px;margin:0}
+.sub{color:var(--mu);font-size:14px;margin:2px 0 18px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.k{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.k b{display:block;font-size:28px;color:var(--gold);line-height:1.1}
+.k span{color:var(--mu);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;overflow:auto}
+h2{font-size:16px;margin:0 0 10px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;white-space:nowrap}
+th{background:#332C55;color:#D9D3EE;font-weight:600}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+input{font:inherit;color:var(--tx);background:#211C38;border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:260px}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;color:#fff;background:var(--grn)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.err{color:#F29A9C}
+</style>
+</head>
+<body>
+<div class="w">
+  <h1>Làng Giáng Sinh PEC · Theo dõi</h1>
+  <p class="sub" id="upd">Số liệu từ máy chủ game</p>
+  <div class="bar" id="keyBar"><input id="k" type="password" placeholder="Khóa quản trị" autocomplete="off"><button id="go">Xem số liệu</button><span class="err" id="e"></span></div>
+  <div id="out" hidden>
+    <div class="bar"><button id="csv">Tải danh sách phụ huynh (CSV)</button><button id="re" style="background:#5B4BA0">Làm mới</button><span class="err" id="e2"></span></div>
+    <div class="kpi" id="kpi"></div>
+    <div class="card"><h2>Theo ngày</h2><table id="tDay"></table></div>
+    <div class="card"><h2>Theo cơ sở và cấp</h2><table id="tBr"></table></div>
+    <div class="card"><h2>Mã đổi quà</h2><table id="tCode"></table></div>
+    <div class="card"><h2>Lượt chơi bất thường</h2><table id="tFlag"></table></div>
+  </div>
+</div>
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)},KEY='';
+  try{KEY=sessionStorage.getItem('pec-qt')||''}catch(e){}
+  var LV=['Tiểu Tinh Linh','Tuần Lộc','Ông Già Noel'];
+  var esc=function(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+  var num=function(v){return (+v||0).toLocaleString('vi-VN')};
+  function table(el,head,rows,nc){$(el).innerHTML='<tr>'+head.map(function(h){return'<th>'+h+'</th>'}).join('')+'</tr>'+(rows.length?rows.map(function(r){return'<tr>'+r.map(function(v,i){return'<td'+(nc.indexOf(i)>=0?' class="n">'+num(v):'>'+esc(v))+'</td>'}).join('')+'</tr>'}).join(''):'<tr><td colspan="'+head.length+'">Chưa có</td></tr>')}
+  function load(){
+    fetch('/api/admin/stats',{headers:{'x-key':KEY}}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error);return j})}).then(function(d){
+      try{sessionStorage.setItem('pec-qt',KEY)}catch(e){}
+      $('#keyBar').hidden=true;$('#out').hidden=false;$('#upd').textContent='Cập nhật lúc '+new Date().toLocaleString('vi-VN');
+      var reg=d.regByDay.reduce(function(a,x){return a+x.n},0),pl=d.byBranch.reduce(function(a,x){return a+x.players},0),z=d.byBranch.reduce(function(a,x){return a+x.zalo},0),inv=d.byBranch.reduce(function(a,x){return a+x.invited},0);
+      var iss=d.codes.reduce(function(a,x){return a+x.issued},0),red=d.codes.reduce(function(a,x){return a+x.redeemed},0);
+      $('#kpi').innerHTML=[['Bé đã đăng ký',reg],['Quay lại từ 3 ngày',d.back3[0].n],['Vào nhóm Zalo',z],['Đăng ký qua bạn mời',inv],['Mã đổi quà đã phát',iss],['Đã nhận quà tại quầy',red]].map(function(x){return'<div class="k"><b>'+num(x[1])+'</b><span>'+x[0]+'</span></div>'}).join('');
+      var rmap={};d.regByDay.forEach(function(x){rmap[x.date]=x.n});
+      var dates={};d.byDay.forEach(function(x){dates[x.date]=x});d.regByDay.forEach(function(x){dates[x.date]=dates[x.date]||{date:x.date}});
+      table('#tDay',['Ngày','Đăng ký mới','Bé chơi','Lượt tính điểm','Tổng điểm'],Object.keys(dates).sort().map(function(k){var x=dates[k];return[k.split('-').reverse().join('/'),rmap[k]||0,x.players||0,x.rounds||0,x.pts||0]}),[1,2,3,4]);
+      table('#tBr',['Cơ sở','Cấp','Số bé','Vào Zalo','Qua bạn mời'],d.byBranch.map(function(x){return[x.branch,LV[x.lv],x.players,x.zalo,x.invited]}),[2,3,4]);
+      table('#tCode',['Quà','Đã phát mã','Đã trao'],d.codes.map(function(x){return[x.gift,x.issued,x.redeemed]}),[1,2]);
+      table('#tFlag',['Ngày','Bé','SĐT','Trạm','Lý do'],d.flagged.map(function(x){return[x.date,x.name,x.phone,x.station,x.flag]}),[]);
+    }).catch(function(e){KEY='';$('#keyBar').hidden=false;$('#out').hidden=true;$('#e').textContent=e.message})}
+  $('#go').onclick=function(){KEY=$('#k').value.trim();$('#k').value='';$('#e').textContent='';if(KEY)load()};
+  $('#k').onkeydown=function(e){if(e.key==='Enter')$('#go').click()};
+  $('#re').onclick=load;
+  $('#csv').onclick=function(){fetch('/api/admin/players.csv',{headers:{'x-key':KEY}}).then(function(r){if(!r.ok)throw new Error('Không tải được');return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='lang-giang-sinh-pec.csv';document.body.appendChild(a);a.click();a.remove()}).catch(function(e){$('#e2').textContent=e.message})};
+  if(KEY)load();
+})();
+</script>
+</body>
+</html>

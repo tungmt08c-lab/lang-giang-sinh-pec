@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Quầy đổi quà · Làng Giáng Sinh PEC</title>
+<style>
+:root{--bg:#1E1A33;--card:#2A2445;--line:#443B66;--tx:#ECE8F7;--mu:#A9A1C6;--red:#E25A5E;--grn:#3FB37A;--gold:#F2C94C}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;min-height:100vh;display:flex;justify-content:center;padding:28px 16px}
+.w{width:100%;max-width:480px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mu);font-size:14px;margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mu);margin:0 0 6px}
+input,select{width:100%;font:inherit;color:var(--tx);background:#211C38;border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:none}
+input:focus,select:focus{border-color:var(--gold)}
+.code{font:700 26px/1 ui-monospace,Menlo,monospace;letter-spacing:2px;text-transform:uppercase;text-align:center}
+.row{display:flex;gap:10px;margin-top:12px}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:12px 16px;cursor:pointer;color:#fff;background:#5B4BA0}
+button.go{background:var(--grn);flex:1}
+button:disabled{opacity:.45;cursor:default}
+.res dl{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;margin:0}
+.res dt{color:var(--mu)}
+.res dd{margin:0;font-weight:600}
+.gift{font-size:24px;font-weight:800;color:var(--gold);margin-bottom:10px}
+.badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700}
+.ok{background:rgba(63,179,122,.18);color:#7ED9A9}
+.used{background:rgba(226,90,94,.18);color:#F29A9C}
+.msg{min-height:22px;font-size:14px;margin-top:10px}
+.err{color:#F29A9C}.good{color:#7ED9A9}
+.lk{background:none;color:var(--mu);padding:0;font-weight:500;text-decoration:underline;font-size:13px}
+</style>
+</head>
+<body>
+<div class="w">
+  <h1>Quầy đổi quà</h1>
+  <p class="sub">Làng Giáng Sinh PEC · tra mã và xác nhận trao quà</p>
+
+  <div class="card" id="keyBox">
+    <label for="k">Khóa quầy (do quản lý cung cấp)</label>
+    <input id="k" type="password" autocomplete="off">
+    <div class="row"><button class="go" id="kSave">Vào quầy</button></div>
+    <p class="msg" id="kMsg"></p>
+  </div>
+
+  <div id="desk" hidden>
+    <div class="card">
+      <label for="br">Cơ sở đang trao quà</label>
+      <select id="br"><option>Lạch Tray</option><option>Tô Hiệu</option><option>Vinhomes Imperia</option><option>Đà Nẵng</option><option>Thủy Nguyên</option></select>
+      <label for="c" style="margin-top:14px">Mã đổi quà phụ huynh đưa</label>
+      <input id="c" class="code" placeholder="PEC-XXXXX" maxlength="9" autocomplete="off" autocapitalize="characters">
+      <div class="row"><button class="go" id="find">Tra mã</button></div>
+      <p class="msg" id="fMsg"></p>
+    </div>
+    <div class="card res" id="res" hidden></div>
+    <button class="lk" id="out">Thoát khóa quầy trên máy này</button>
+  </div>
+</div>
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)},KEY='',CUR=null;
+  try{KEY=sessionStorage.getItem('pec-quay')||'';$('#br').value=localStorage.getItem('pec-quay-br')||'Lạch Tray'}catch(e){}
+  var esc=function(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+  function api(path,body){return fetch('/api/'+path,{method:body?'POST':'GET',headers:{'content-type':'application/json','x-key':KEY},body:body?JSON.stringify(body):undefined}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Lỗi');return j})})}
+  function show(){$('#keyBox').hidden=!!KEY;$('#desk').hidden=!KEY;if(KEY)$('#c').focus()}
+  $('#kSave').onclick=function(){var k=$('#k').value.trim();if(!k)return;KEY=k;
+    var okK=function(){try{sessionStorage.setItem('pec-quay',KEY)}catch(x){}$('#k').value='';$('#kMsg').textContent='';show()};
+    api('staff/code?code=PEC-00000').then(okK).catch(function(e){
+      if(/khóa/i.test(e.message)){KEY='';$('#kMsg').className='msg err';$('#kMsg').textContent='Khóa quầy không đúng';return}
+      okK()})};
+  $('#k').onkeydown=function(e){if(e.key==='Enter')$('#kSave').click()};
+  $('#br').onchange=function(){try{localStorage.setItem('pec-quay-br',this.value)}catch(e){}};
+  function norm(v){v=v.toUpperCase().replace(/[^A-Z0-9]/g,'');if(v.indexOf('PEC')===0)v=v.slice(3);return 'PEC-'+v}
+  function find(){var code=norm($('#c').value);if(code.length!==9){msg('Mã gồm PEC- và 5 ký tự','err');return}
+    msg('Đang tra…','');api('staff/code?code='+encodeURIComponent(code)).then(function(d){CUR=d;msg('','');render(d)}).catch(function(e){$('#res').hidden=true;msg(e.message,'err')})}
+  function msg(t,c){$('#fMsg').textContent=t;$('#fMsg').className='msg '+c}
+  function render(d){
+    var used=!!d.redeemed_at;
+    $('#res').innerHTML='<div class="gift">'+esc(d.gift)+'</div><dl><dt>Mã</dt><dd>'+esc(d.code)+'</dd><dt>Tên bé</dt><dd>'+esc(d.name)+'</dd><dt>Trường</dt><dd>'+esc(d.school)+'</dd><dt>Cơ sở đăng ký</dt><dd>'+esc(d.branch)+'</dd><dt>SĐT phụ huynh</dt><dd>'+esc(d.phone)+'</dd><dt>Trạng thái</dt><dd>'+(used?'<span class="badge used">Đã trao '+new Date(d.redeemed_at).toLocaleString('vi-VN')+' · '+esc(d.redeemed_branch)+'</span>':'<span class="badge ok">Chưa trao</span>')+'</dd></dl>'+
+      (used?'':'<p class="sub" style="margin:12px 0 0">Hỏi phụ huynh 3 số cuối điện thoại để đối chiếu trước khi trao.</p><div class="row"><button class="go" id="give">Xác nhận đã trao quà</button></div>');
+    $('#res').hidden=false;
+    var g=$('#give');if(g)g.onclick=function(){g.disabled=true;api('staff/redeem',{code:d.code,branch:$('#br').value}).then(function(){msg('Đã ghi nhận trao '+d.gift+' cho bé '+d.name,'good');$('#c').value='';$('#res').hidden=true;$('#c').focus()}).catch(function(e){g.disabled=false;msg(e.message,'err')})};
+  }
+  $('#find').onclick=find;$('#c').onkeydown=function(e){if(e.key==='Enter')find()};
+  $('#out').onclick=function(){KEY='';try{sessionStorage.removeItem('pec-quay')}catch(e){}show()};
+  show();
+})();
+</script>
+</body>
+</html>

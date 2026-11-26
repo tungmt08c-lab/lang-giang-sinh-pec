@@ -13,6 +13,10 @@ Game web mùa Noel 2026 của Trung tâm Ngoại ngữ và Du học PEC: trẻ t
 | `public/index.html` | Toàn bộ game: giao diện, 3 trạm cấp Kids, vé, điểm, kẹo, bảng xếp hạng, đổi quà |
 | `public/logo-pec.png` | Logo PEC |
 | `public/assets/` | Hình do người thiết kế vẽ (nền, công trình, linh vật, biểu tượng…), tên file theo tài liệu yêu cầu thiết kế |
+| `public/audio/` | 78 file phát âm tiếng Anh, tên file = câu viết thường nối gạch ngang |
+| `public/quay/` | Trang quầy đổi quà cho lễ tân: tra mã, xác nhận đã trao quà |
+| `public/quantri/` | Trang theo dõi: số đăng ký, lượt chơi, đổi quà, lượt bất thường, tải danh sách phụ huynh |
+| `functions/api/` | Máy chủ (Cloudflare Pages Functions + cơ sở dữ liệu D1): đăng ký, vé, điểm, kẹo, xếp hạng, mã đổi quà |
 | `design/` | Tài liệu nội bộ, không đưa lên mạng: ảnh khung bản đồ, ảnh bản hiện tại, tờ trình kế hoạch gửi BGĐ |
 
 ## Phân việc
@@ -32,7 +36,31 @@ Game web mùa Noel 2026 của Trung tâm Ngoại ngữ và Du học PEC: trẻ t
 
 ## Xem thử trên máy
 
-Mở `public/index.html` bằng trình duyệt. Điểm và kẹo trong bản chạy thử lưu trên máy đang chơi; bảng xếp hạng đang dùng dữ liệu mẫu.
+Mở `public/index.html` bằng trình duyệt: game tự chạy chế độ cục bộ (điểm lưu trên máy, bảng xếp hạng dữ liệu mẫu).
+
+Chạy kèm máy chủ: `npx wrangler pages dev public --d1 DB --binding STAFF_KEY=... ADMIN_KEY=...` rồi mở http://localhost:8788. Game dò `/api/ping`, có máy chủ thì lưu điểm thật.
+
+## Máy chủ
+
+| Việc | Cách làm |
+| --- | --- |
+| Đăng ký | Phụ huynh nhập tên gọi, cấp, trường, cơ sở, số điện thoại, đánh dấu đồng ý. Mỗi số tối đa 3 bé. Bé nhận mã 6 ký tự để vào lại trên máy khác |
+| Vé | 5 vé/ngày theo giờ Việt Nam; hộp quà ngày +1 vé +50 điểm; nhóm Zalo +2 vé (1 lần); mã bạn mời +1 vé cho cả hai |
+| Chấm điểm | Máy chủ trừ vé khi bắt đầu lượt, giới hạn 100 điểm/lượt, 20 kẹo/ngày, đối chiếu điểm với số kẹo, gắn cờ lượt nhanh bất thường |
+| Thưởng | Chuỗi 3 ngày +100, 7 ngày +300; top 3 Ngôi sao hôm nay mỗi cấp +5 kẹo (trao khi bé mở game hôm sau) |
+| Đổi quà | 60 / 120 / 200 kẹo ra mã `PEC-XXXXX`; lễ tân tra mã ở `/quay/` và bấm xác nhận đã trao |
+| Bảo mật | Bảng xếp hạng chỉ hiện tên gọi và trường; số điện thoại chỉ có trong file CSV ở trang `/quantri/`; quầy chỉ thấy 3 số cuối |
+
+Bảng dữ liệu tự tạo ở lần gọi đầu tiên.
+
+## Cài đặt trên Cloudflare (một lần)
+
+1. Workers & Pages → D1 → tạo cơ sở dữ liệu `lang-giang-sinh-pec`.
+2. Dự án Pages `lang-giang-sinh-pec` → Settings → Bindings → thêm D1, tên biến `DB`, chọn cơ sở dữ liệu vừa tạo.
+3. Settings → Variables and Secrets → thêm 2 biến loại Secret: `STAFF_KEY` (đưa cho lễ tân 5 cơ sở) và `ADMIN_KEY` (chỉ người quản lý giữ). Mỗi khóa dài từ 16 ký tự trở lên.
+4. Triển khai lại bản mới nhất (Deployments → Retry deployment) để nhận cài đặt.
+
+Chưa gắn D1 thì game vẫn chạy chế độ cục bộ như bản chạy thử.
 
 ## Đưa lên mạng
 
