@@ -17,6 +17,7 @@ Game web mùa Noel 2026 của Trung tâm Ngoại ngữ và Du học PEC: trẻ t
 | `public/audio/` | 78 file phát âm tiếng Anh, tên file = câu viết thường nối gạch ngang |
 | `public/quay/` | Trang quầy đổi quà cho lễ tân: tra mã, xác nhận đã trao quà |
 | `public/quantri/` | Trang theo dõi: số đăng ký, lượt chơi, đổi quà, lượt bất thường, tải danh sách phụ huynh |
+| `arena-room/` | Máy chủ phòng thi trực tiếp (Cloudflare Worker `pec-arena-room`, Durable Object `ArenaRoom`): giữ đề, đồng hồ 10 giây, chấm điểm, kỹ năng, bạn máy thay chỗ trống. `arena-room/src/config.json` là bản sao của `public/data/arena-5v5-config.json`, sửa câu hỏi thì chép lại cả hai nơi |
 | `functions/api/` | Máy chủ (Cloudflare Pages Functions + cơ sở dữ liệu D1): đăng ký, vé, điểm, kẹo, xếp hạng, mã đổi quà |
 | `design/mockups-5v5/`, `design/dac-ta-dau-truong-5vs5.md` | Bản vẽ tham chiếu và đặc tả Đấu trường 5vs5 (nội bộ) |
 | `design/` | Tài liệu nội bộ, không đưa lên mạng: ảnh khung bản đồ, ảnh bản hiện tại, tờ trình kế hoạch gửi BGĐ |
@@ -51,6 +52,7 @@ Chạy kèm máy chủ: `npx wrangler pages dev public --d1 DB --binding STAFF_K
 | Chấm điểm | Máy chủ trừ vé khi bắt đầu lượt, giới hạn 100 điểm/lượt, 20 kẹo/ngày, đối chiếu điểm với số kẹo, gắn cờ lượt nhanh bất thường |
 | Thưởng | Chuỗi 3 ngày +100, 7 ngày +300; top 3 Ngôi sao hôm nay mỗi cấp +5 kẹo (trao khi bé mở game hôm sau) |
 | Đổi quà | 60 / 120 / 200 kẹo ra mã `PEC-XXXXX`; lễ tân tra mã ở `/quay/` và bấm xác nhận đã trao |
+| Phòng thi trực tiếp | MC mở `/?room=MÃ&view=host` (nhập khóa quầy hoặc khóa quản trị), chọn 2 cơ sở và cấp, bấm Bắt đầu. Bé mở `/?room=MÃ` (phải đăng ký), tự vào đội theo cơ sở, tối đa 5 bé/đội, chỗ trống có bạn máy 🤖. Màn chiếu `/?room=MÃ&view=stage`, khán giả `/?room=MÃ&role=spectator`. Đáp án không gửi về máy bé; mất mạng vào lại vẫn giữ chỗ và điểm. Trận trực tiếp không trừ vé, không cộng điểm ngày |
 | Bảo mật | Bảng xếp hạng chỉ hiện tên gọi và trường; số điện thoại chỉ có trong file CSV ở trang `/quantri/`; quầy chỉ thấy 3 số cuối |
 
 Bảng dữ liệu tự tạo ở lần gọi đầu tiên.
@@ -61,6 +63,7 @@ Bảng dữ liệu tự tạo ở lần gọi đầu tiên.
 2. Dự án Pages `lang-giang-sinh-pec` → Settings → Bindings → thêm D1, tên biến `DB`, chọn cơ sở dữ liệu vừa tạo.
 3. Settings → Variables and Secrets → thêm 2 biến loại Secret: `STAFF_KEY` (đưa cho lễ tân 5 cơ sở) và `ADMIN_KEY` (chỉ người quản lý giữ). Mỗi khóa dài từ 16 ký tự trở lên.
 4. Triển khai lại bản mới nhất (Deployments → Retry deployment) để nhận cài đặt.
+5. Phòng thi trực tiếp: tạo Worker `pec-arena-room` từ thư mục `arena-room/` của kho mã (Workers & Pages → Create → Import a repository, thư mục gốc `arena-room`), rồi ở dự án Pages → Settings → Bindings thêm Durable Object, tên biến `ARENA`, chọn Worker `pec-arena-room`, lớp `ArenaRoom`. Triển khai lại Pages.
 
 Chưa gắn D1 thì game vẫn chạy chế độ cục bộ như bản chạy thử.
 

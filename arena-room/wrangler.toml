@@ -1,0 +1,14 @@
+# Worker phòng đấu trực tiếp của Làng Giáng Sinh PEC
+# Chỉ chứa lớp Durable Object ArenaRoom; trang game (Pages) gắn vào qua binding ARENA.
+name = "pec-arena-room"
+main = "src/index.js"
+compatibility_date = "2025-07-01"
+workers_dev = false
+
+[[durable_objects.bindings]]
+name = "ARENA"
+class_name = "ArenaRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ArenaRoom"]

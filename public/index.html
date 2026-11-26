@@ -495,6 +495,8 @@ function gain(){
 /* ================= MÁY CHỦ ================= */
 // Có máy chủ (Cloudflare) thì lưu điểm thật; không có (bản xem thử) thì chạy cục bộ như cũ
 let SRV=false,ROUND=null;
+// Link phòng thi trực tiếp: ?room=MÃ (thí sinh) · &role=spectator (khán giả) · &view=stage (màn sân khấu) · &view=host (MC)
+let LIVE=(()=>{const q=new URLSearchParams(location.search),room=(q.get('room')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);if(room.length<3)return null;const v=q.get('view'),r=q.get('role');return{room,view:v==='stage'||v==='host'?v:'',role:r==='spectator'?r:''}})();
 const ZALO_URL='';
 function api(path,body){
   const h={'content-type':'application/json'};
@@ -1071,6 +1073,7 @@ function Snowman(){
 
 /* ================= TRẠM 7: ĐẤU TRƯỜNG BÔNG TUYẾT 5VS5 ================= */
 function Arena(){
+  const lo=LIVE;LIVE=null;
   if(!window.PECArena){$('#stage').innerHTML='<p class="hint">Chưa tải được Đấu trường, bé thử lại sau nhé</p>';return}
   window.PECArena.start({
     S,save,refresh,gain,goHome,ding,buzz,jingle,tone,speak,stopSpeak,unlockAudio,confetti,confettiAt,toast,openReg,WRAP_WORDS,TOPICS,
@@ -1095,8 +1098,10 @@ function Arena(){
       refresh();const md=$('#mode');md.className='mode'+(MODE==='scored'?'':' pr');
       md.textContent=MODE==='scored'?`Trận tính điểm · còn ${S.day.tk} vé hôm nay`:'Luyện tập · hết vé hôm nay, không tính điểm';
     },
-    setCleanup(fn){cleanup=fn}
-  },null);
+    setCleanup(fn){cleanup=fn},
+    token:()=>S.profile&&S.profile.token,
+    srv:()=>SRV
+  },lo);
 }
 
 /* ================= ĐĂNG KÝ ================= */
@@ -1211,7 +1216,7 @@ ensureDay();drawMap();countdown();refresh();
 fetch('/api/ping',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.ok)return;
   SRV=true;document.body.classList.add('srv');$('.note').textContent='5 trạm mở trước · các trạm khác mở dần từ 14/12';
   if(S.profile&&!S.profile.token){S.profile=null;S.codes=[];S.candy=0;S.days={};S.day=null;S.zalo=false;ensureDay();save()}
-  refresh();sync()}).catch(()=>{});
+  refresh();sync()}).catch(()=>{}).finally(()=>{if(LIVE){const a=STATIONS.find(x=>x.id==='arena');if(a)enter(a,'practice')}});
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sync()});
 const msc=$('#mascot');msc.onclick=()=>{unlockAudio();mascotSay(true);msc.src='assets/mascot-happy.png';clearTimeout(msc._t);msc._t=setTimeout(()=>msc.src='assets/mascot-hello.png',1600);tone(1046,.12,'triangle',.08);tone(1318,.15,'triangle',.07,.08);speak('Merry Christmas!',.9)};
 msc.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();msc.onclick()}});

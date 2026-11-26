@@ -1009,3 +1009,13 @@
   0% { transform: translateY(0) scale(0.6); opacity: 1; }
   100% { transform: translateY(-280px) translateX(var(--cx, 20px)) scale(1.25); opacity: 0; }
 }
+
+/* Màn sân khấu 16:9 (máy chiếu/TV): làn đấu cao hơn, chữ to đọc được từ cuối hội trường */
+@media (min-width: 1280px) and (min-height: 860px) {
+  .ar-stage-grid .ar-rink .ar-lane { min-height: 146px; padding: 26px 22px 8px; }
+  .ar-stage-grid .ar-sprite-box { width: 104px; height: 104px; }
+  .ar-stage-grid .ar-lane-tag { font-size: 16px; top: 4px; padding: 2px 14px; }
+  .ar-stage-grid .ar-fmeta b { font-size: 21px; }
+  .ar-stage-grid .ar-fmeta small { font-size: 15px; }
+  .ar-stage-grid .ar-cr-row { font-size: 16px; }
+}
